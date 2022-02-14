@@ -1,5 +1,6 @@
 ### AWS S3 without storing/managing security credentials
 ##### POC to demonstrate using AWS S3 programatically using IAM Roles rather than security credentials (access key ID and secret access key). The spring-boot application will be deployed in an EC2 Instance (Required) and uses [S3](https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3/1.12.158) and [STS](https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sts/1.12.158) dependencies.
+##### This approach eliminates the process of storing, managing and rotating security keys and can be replicated to be used with any AWS service.
 
 ----
 ### Setup
