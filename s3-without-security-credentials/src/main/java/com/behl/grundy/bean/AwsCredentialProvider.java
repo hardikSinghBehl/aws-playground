@@ -3,6 +3,7 @@ package com.behl.grundy.bean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -11,7 +12,6 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.behl.grundy.properties.AwsProperties;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -20,12 +20,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableConfigurationProperties(value = AwsProperties.class)
-@AllArgsConstructor
 @Slf4j
 public class AwsCredentialProvider {
 
 	private final AwsProperties awsProperties;
 	private final AWSCredentialsProvider awsCredentialsProvider;
+
+	@Lazy
+	public AwsCredentialProvider(final AwsProperties awsProperties,
+			final AWSCredentialsProvider awsCredentialsProvider) {
+		this.awsProperties = awsProperties;
+		this.awsCredentialsProvider = awsCredentialsProvider;
+	}
 
 	@Bean
 	@Primary
