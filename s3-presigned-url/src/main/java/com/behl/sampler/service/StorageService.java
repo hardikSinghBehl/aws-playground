@@ -29,12 +29,10 @@ public class StorageService {
 	private final AmazonS3 amazonS3;
 	private final AmazonS3ConfigurationProperties amazonS3ConfigurationProperties;
 
-	private static final String OBJECT_KEY = "premium-demo-video.mp4";
-
-	public URI retreivePresignedUrl() {
+	public URI retreivePresignedUrl(final String key) {
 		final var s3Properties = amazonS3ConfigurationProperties.getS3();
 		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
-				s3Properties.getBucketName(), OBJECT_KEY, HttpMethod.GET);
+				s3Properties.getBucketName(), key, HttpMethod.GET);
 		generatePresignedUrlRequest.setExpiration(new LocalDateTime().plusMinutes(1).toDate());
 
 		final URL presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);

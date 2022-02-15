@@ -5,6 +5,7 @@ import java.net.URI;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,10 +25,11 @@ public class PreviewController {
 
 	private final StorageService storageService;
 
-	@GetMapping(value = "/preview")
+	@GetMapping(value = "/preview/{objectKey}")
 	@ResponseStatus(HttpStatus.FOUND)
-	public ResponseEntity<?> previewLinkRetreivalHandler() {
-		final URI presignedUrl = storageService.retreivePresignedUrl();
+	public ResponseEntity<?> previewLinkRetreivalHandler(
+			@PathVariable(required = true, name = "objectKey") final String objectKey) {
+		final URI presignedUrl = storageService.retreivePresignedUrl(objectKey);
 		return ResponseEntity.status(HttpStatus.FOUND).location(presignedUrl).build();
 	}
 
