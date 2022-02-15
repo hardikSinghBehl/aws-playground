@@ -31,9 +31,10 @@ public class StorageService {
 
 	public URI retreivePresignedUrl(final String key) {
 		final var s3Properties = amazonS3ConfigurationProperties.getS3();
+
 		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
 				s3Properties.getBucketName(), key, HttpMethod.GET);
-		generatePresignedUrlRequest.setExpiration(new LocalDateTime().plusMinutes(1).toDate());
+		generatePresignedUrlRequest.setExpiration(new LocalDateTime().plusSeconds(10).toDate());
 
 		final URL presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 		try {
