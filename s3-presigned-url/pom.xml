@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.6.3</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>com.behl</groupId>
+	<artifactId>s3-presigned-url</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>s3-presigned-url</name>
+	<description>POC demonstrating generation of a presigned URL for a private object, that can be accessible for the configured period of time</description>
+
+	<properties>
+		<java.version>17</java.version>
+		<aws.sdk.version>1.12.158</aws.sdk.version>
+	</properties>
+
+	<developers>
+		<developer>
+			<id>hardikSinghBehl</id>
+			<name>Hardik Singh Behl</name>
+			<email>behl.hardiksingh@gmail.com</email>
+			<url>https://www.linkedin.com/in/hardiksinghbehl</url>
+			<organization>Publicis Sapient</organization>
+			<roles>
+				<role>Backend Developer</role>
+				<role>Java Web Developer</role>
+			</roles>
+			<timezone>UTC +5:30</timezone>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
