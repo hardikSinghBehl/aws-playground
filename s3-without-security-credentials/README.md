@@ -1,5 +1,5 @@
 ### AWS S3 without storing/managing security credentials
-##### POC to demonstrate using AWS S3 programatically using IAM Roles rather than security credentials (access key ID and secret access key). The spring-boot application will be deployed in an EC2 Instance (Required) and uses [S3](https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3/1.12.158) and [STS](https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sts/1.12.158) dependencies.
+##### POC to demonstrate using AWS S3 programatically using IAM Roles rather than security credentials (access key ID and secret access key). The spring-boot application will be deployed in an EC2 Instance (Required) and uses [S3](https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3/1.12.158) dependency.
 ##### This approach eliminates the process of storing, managing and rotating security keys and can be replicated to be used with any AWS service.
 
 ----
@@ -29,7 +29,6 @@
 3. Attach the above created role on an EC2 Instance that will be used to run the application (Allow SSH and HTTP 8080 port in security groups of the instance)
 4. Go to application.properties file and configure values of the below two mentioned properties
 ```
-com.behl.aws.role-arn=<ARN-of-above-created-role>
 com.behl.aws.s3.bucket-name=<name-of-s3-bucket-configured-above>
 ```
 5. Start the application and test out the `POST /files` and `GET /files` API endpoints
@@ -38,7 +37,6 @@ com.behl.aws.s3.bucket-name=<name-of-s3-bucket-configured-above>
 
 ### Important Classes
 * [AwsProperties.class](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/s3-without-security-credentials/src/main/java/com/behl/grundy/properties/AwsProperties.java)
-* [AwsCredentialProvider.class](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/s3-without-security-credentials/src/main/java/com/behl/grundy/bean/AwsCredentialProvider.java)
 * [AwsSimpleStorageService.class](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/s3-without-security-credentials/src/main/java/com/behl/grundy/bean/AwsSimpleStorageService.java)
 * [StorageController.class](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/s3-without-security-credentials/src/main/java/com/behl/grundy/controller/StorageController.java)
 

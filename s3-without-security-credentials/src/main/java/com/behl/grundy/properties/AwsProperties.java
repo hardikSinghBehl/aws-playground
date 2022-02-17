@@ -12,10 +12,6 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "com.behl.aws")
 public class AwsProperties {
 
-	/**
-	 * Amazon Resource Name (ARN) of the role configured with required policies
-	 */
-	private String roleArn;
 	private S3 s3 = new S3();
 
 	@Data
