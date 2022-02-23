@@ -19,7 +19,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<aws.sdk.version>1.12.164</aws.sdk.version>
+		<aws.sdk.version>1.12.163</aws.sdk.version>
 	</properties>
 
 	<developers>
@@ -44,6 +44,11 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-transcribe</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
 			<version>${aws.sdk.version}</version>
 		</dependency>
 		<dependency>
