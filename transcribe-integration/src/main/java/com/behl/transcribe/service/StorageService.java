@@ -10,7 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import com.behl.transcribe.properties.AwsS3ConfigurationProperties;
 
 import lombok.AllArgsConstructor;
@@ -42,13 +44,27 @@ public class StorageService {
 		metadata.setContentDisposition(file.getOriginalFilename());
 
 		try {
-			amazonS3.putObject(awsS3ConfigurationProperties.getS3().getBucketName(), file.getOriginalFilename(),
+			amazonS3.putObject(awsS3ConfigurationProperties.getS3().getInputBucketName(), file.getOriginalFilename(),
 					file.getInputStream(), metadata);
 		} catch (SdkClientException | IOException e) {
 			log.error("UNABLE TO STORE {} IN S3: {} ", file.getOriginalFilename(), LocalDateTime.now());
 			return HttpStatus.EXPECTATION_FAILED;
 		}
 		return HttpStatus.OK;
+	}
+
+	/**
+	 * Method to retrieve transcribed JSON result from configured output bucket
+	 * 
+	 * @param name of StartTranscriptionJobRequest
+	 * @return S3Object representing the transcribed result
+	 */
+	public S3Object retrieve(final String jobName) {
+		try {
+			return amazonS3.getObject(awsS3ConfigurationProperties.getS3().getOutputBucketName(), jobName + ".json");
+		} catch (AmazonS3Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -59,7 +75,7 @@ public class StorageService {
 	 */
 
 	public void delete(final MultipartFile file) {
-		amazonS3.deleteObject(awsS3ConfigurationProperties.getS3().getBucketName(), file.getOriginalFilename());
+		amazonS3.deleteObject(awsS3ConfigurationProperties.getS3().getInputBucketName(), file.getOriginalFilename());
 	}
 
 }

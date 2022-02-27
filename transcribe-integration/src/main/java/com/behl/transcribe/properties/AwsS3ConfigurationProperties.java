@@ -17,10 +17,15 @@ public class AwsS3ConfigurationProperties {
 	@Data
 	public class S3 {
 		/**
-		 * S3 Bucket name for which IAM Role has been configured to perform CRUD
-		 * operations
+		 * S3 Bucket name for which where input media files are to be saved
 		 */
-		private String bucketName;
+		private String inputBucketName;
+
+		/**
+		 * S3 Bucket name for which where output media files are to be saved
+		 */
+		private String outputBucketName;
+
 	}
 
 }
