@@ -50,6 +50,10 @@ public class AudioToSpeechConvertionService {
 			if (result != null)
 				resultRetreived = true;
 		}
+		// Deleting Resources [OPTIONAL]
+		storageService.delete(file);
+		storageService.delete(jobName);
+
 		return result.getObjectContent();
 	}
 

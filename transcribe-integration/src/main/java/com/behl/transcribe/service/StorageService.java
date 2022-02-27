@@ -78,4 +78,13 @@ public class StorageService {
 		amazonS3.deleteObject(awsS3ConfigurationProperties.getS3().getInputBucketName(), file.getOriginalFilename());
 	}
 
+	/**
+	 * Method to delete JSON result object from the configured output S3 Bucket
+	 * 
+	 * @param name of StartTranscriptionJobRequest
+	 */
+	public void delete(final String jobName) {
+		amazonS3.deleteObject(awsS3ConfigurationProperties.getS3().getOutputBucketName(), jobName + ".json");
+	}
+
 }
