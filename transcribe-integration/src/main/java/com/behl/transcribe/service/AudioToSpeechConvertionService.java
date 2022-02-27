@@ -11,6 +11,7 @@ import com.amazonaws.services.transcribe.AmazonTranscribe;
 import com.amazonaws.services.transcribe.model.Media;
 import com.amazonaws.services.transcribe.model.StartTranscriptionJobRequest;
 import com.behl.transcribe.properties.AwsS3ConfigurationProperties;
+import com.behl.transcribe.utility.RandomUtils;
 
 import lombok.AllArgsConstructor;
 
@@ -32,7 +33,7 @@ public class AudioToSpeechConvertionService {
 		media.setMediaFileUri(constructS3Uri(file));
 
 		// Preparing a TranscriptionJobRequest
-		final String jobName = "hardik";
+		final String jobName = RandomUtils.string(8);
 		StartTranscriptionJobRequest startTranscriptionJobRequest = new StartTranscriptionJobRequest();
 		startTranscriptionJobRequest.setLanguageCode(languageCode);
 		startTranscriptionJobRequest.setOutputBucketName(awsS3ConfigurationProperties.getS3().getOutputBucketName());
