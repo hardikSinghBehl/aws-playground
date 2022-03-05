@@ -3,12 +3,13 @@ package com.behl.sqs.consumer.bean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import com.behl.sqs.consumer.properties.AwsIAMConfigurationProperties;
 
 import lombok.AllArgsConstructor;
@@ -21,11 +22,12 @@ public class SqsBeanConfiguration {
 	private final AwsIAMConfigurationProperties awsIAMConfigurationProperties;
 
 	@Bean
-	public AmazonSQS amazonSQS() {
+	@Primary
+	public AmazonSQSAsync amazonSQSAsync() {
 		BasicAWSCredentials credentials = new BasicAWSCredentials(awsIAMConfigurationProperties.getAccessKey(),
 				awsIAMConfigurationProperties.getSecretAccessKey());
 
-		return AmazonSQSClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+		return AmazonSQSAsyncClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
 	}
 
