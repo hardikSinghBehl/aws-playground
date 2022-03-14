@@ -10,6 +10,5 @@ import lombok.extern.jackson.Jacksonized;
 public class UserCreationRequestDto {
 
 	private final String emailId;
-	private final String password;
 
 }

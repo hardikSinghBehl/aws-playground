@@ -10,6 +10,5 @@ import lombok.extern.jackson.Jacksonized;
 public class User {
 
 	private final String emailId;
-	private final String password;
 
 }
