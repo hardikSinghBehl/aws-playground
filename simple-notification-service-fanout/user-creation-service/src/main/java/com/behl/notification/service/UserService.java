@@ -1,5 +1,7 @@
 package com.behl.notification.service;
 
+import java.util.UUID;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,8 @@ public class UserService {
 		// Imaginary code to save user to imaginary database here
 
 		// Publish to spring event
-		applicationEventPublisher.publishEvent(new UserAccountCreationEvent(userCreationRequestDto));
+		applicationEventPublisher.publishEvent(new UserAccountCreationEvent(UserCreationRequestDto.builder()
+				.emailId(userCreationRequestDto.getEmailId()).userId(UUID.randomUUID()).build()));
 	}
 
 }

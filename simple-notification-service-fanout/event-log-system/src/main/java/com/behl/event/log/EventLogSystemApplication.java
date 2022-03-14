@@ -1,7 +1,5 @@
 package com.behl.event.log;
 
-import java.time.LocalDateTime;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration;
@@ -29,7 +27,7 @@ public class EventLogSystemApplication {
 			throws JsonMappingException, JsonProcessingException {
 		final var user = new ObjectMapper().readValue(message, User.class);
 
-		log.info("ACCOUNT CREATED AT {} FOR {}", LocalDateTime.now(), user.getEmailId());
+		log.info("ACCOUNT CREATED FOR {} AND ASSIGNED SYSTEM USER ID {}", user.getEmailId(), user.getUserId());
 	}
 
 }

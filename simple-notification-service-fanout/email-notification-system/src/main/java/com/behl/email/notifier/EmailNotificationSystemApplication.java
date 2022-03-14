@@ -1,7 +1,5 @@
 package com.behl.email.notifier;
 
-import java.time.LocalDateTime;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration;
@@ -29,7 +27,7 @@ public class EmailNotificationSystemApplication {
 			throws JsonMappingException, JsonProcessingException {
 		final var user = new ObjectMapper().readValue(message, User.class);
 
-		log.info("SENDING ACCOUNT CONFIRMATION EMAIL TO USER {}: {}", user.getEmailId(), LocalDateTime.now());
+		log.info("SENDING ACCOUNT CONFIRMATION EMAIL TO USER {} ON {}", user.getUserId(), user.getEmailId());
 	}
 
 }
