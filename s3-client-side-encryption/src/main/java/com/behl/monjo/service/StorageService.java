@@ -1,6 +1,6 @@
 package com.behl.monjo.service;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,6 +29,7 @@ public class StorageService {
 
 	private final AmazonS3 amazonS3;
 	private final AwsS3ConfigurationProperties awsS3ConfigurationProperties;
+	private final EncryptionService encryptionService;
 
 	/**
 	 * 
@@ -41,10 +42,10 @@ public class StorageService {
 
 		try {
 			final var putObjectRequest = new PutObjectRequest(awsS3ConfigurationProperties.getS3().getBucketName(),
-					file.getOriginalFilename(), file.getInputStream(), metadata);
+					file.getOriginalFilename(), new ByteArrayInputStream(encryptionService.encrypt(file)), metadata);
 
 			amazonS3.putObject(putObjectRequest);
-		} catch (final SdkClientException | IOException exception) {
+		} catch (final SdkClientException exception) {
 			log.error("UNABLE TO STORE {} IN S3: {} ", file.getOriginalFilename(), LocalDateTime.now(), exception);
 			return HttpStatus.EXPECTATION_FAILED;
 		}
@@ -61,7 +62,7 @@ public class StorageService {
 		try {
 			final var getObjectRequest = new GetObjectRequest(awsS3ConfigurationProperties.getS3().getBucketName(),
 					objectKey);
-			return amazonS3.getObject(getObjectRequest);
+			return encryptionService.decrypt(amazonS3.getObject(getObjectRequest));
 		} catch (final AmazonS3Exception exception) {
 			log.error("Unable to retreive object {} from configured S3 Bucket {}", objectKey,
 					awsS3ConfigurationProperties.getS3().getBucketName(), exception);
