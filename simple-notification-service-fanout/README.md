@@ -6,6 +6,10 @@ Achieving fanout publishing and parallel processing against an occured event. Me
 * [email-notification-system](https://github.com/hardikSinghBehl/aws-java-reference-pocs/tree/main/simple-notification-service-fanout/email-notification-system) (Subscriber to queue `email-notification-queue`)
 * [event-log-system](https://github.com/hardikSinghBehl/aws-java-reference-pocs/tree/main/simple-notification-service-fanout/event-log-system) (Subscriber to queue `event-log-queue`)
 
+#### Setup
+* [AWS services setup](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/simple-notification-service-fanout/AWS_SERVICES_SETUP.md)
+* [Local setup](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/simple-notification-service-fanout/LOCAL_SETUP.md)
+
 #### References
 * [Event-Driven Architecture](https://aws.amazon.com/event-driven-architecture/)
 * [Fanout notifications using SNS and SQS](https://aws.amazon.com/getting-started/hands-on/send-fanout-event-notifications/)
