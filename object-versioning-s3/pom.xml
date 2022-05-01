@@ -19,6 +19,7 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<aws.sdk.version>1.12.210</aws.sdk.version>
 	</properties>
 
 	<developers>
@@ -44,6 +45,11 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${aws.sdk.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
