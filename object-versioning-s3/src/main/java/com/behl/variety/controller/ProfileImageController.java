@@ -9,17 +9,15 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazonaws.services.s3.model.S3VersionSummary;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping(value = "/v1/user/profile/image")
-@RequiredArgsConstructor
 public class ProfileImageController {
 
 	@PostMapping
@@ -40,7 +38,7 @@ public class ProfileImageController {
 		return null;
 	}
 
-	@GetMapping(value = "/version")
+	@PutMapping(value = "/version")
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public ResponseEntity<HttpStatus> setPreviousVersionAsCurrentProfileImage() {
 		return null;
