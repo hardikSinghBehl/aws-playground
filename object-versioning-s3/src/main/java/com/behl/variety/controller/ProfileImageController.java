@@ -57,7 +57,8 @@ public class ProfileImageController {
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public ResponseEntity<HttpStatus> setPreviousVersionAsCurrentProfileImage(
 			@PathVariable(name = "versionId") final String versionId) {
-		return null;
+		storageService.setVersionAsLatest(versionId);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
 	@DeleteMapping(value = "/version/{versionId}")

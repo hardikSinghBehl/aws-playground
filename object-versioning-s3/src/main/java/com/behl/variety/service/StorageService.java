@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
@@ -52,7 +53,6 @@ public class StorageService {
 	 */
 	public HttpStatus save(final MultipartFile file) {
 		ObjectMetadata metadata = constructMetadata(file);
-
 		try {
 			final var putObjectRequest = new PutObjectRequest(awsS3ConfigurationProperties.getS3().getBucketName(),
 					KEY_NAME, file.getInputStream(), metadata);
@@ -62,6 +62,34 @@ public class StorageService {
 			return HttpStatus.EXPECTATION_FAILED;
 		}
 		return HttpStatus.CREATED;
+	}
+
+	/**
+	 * Method to set previous uploaded version of the profile-image to be the
+	 * current without affecting the current and newer versions
+	 * 
+	 * @param versionId corresponding to the object version that has to set as the
+	 *                  current profile-image
+	 */
+	public void setVersionAsLatest(final String versionId) {
+		final var getObjectRequest = new GetObjectRequest(awsS3ConfigurationProperties.getS3().getBucketName(),
+				KEY_NAME, versionId);
+		final var previousVersionProfileImage = amazonS3.getObject(getObjectRequest);
+		// Upload new object with contents of previous version
+		final ObjectMetadata metadata = previousVersionProfileImage.getObjectMetadata();
+		try {
+			final var putObjectRequest = new PutObjectRequest(awsS3ConfigurationProperties.getS3().getBucketName(),
+					KEY_NAME, previousVersionProfileImage.getObjectContent(), metadata);
+			amazonS3.putObject(putObjectRequest);
+		} catch (final SdkClientException exception) {
+			log.error("UNABLE TO STORE {} IN S3: {} ",
+					previousVersionProfileImage.getObjectMetadata().getContentDisposition(), LocalDateTime.now(),
+					exception);
+			throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED);
+		}
+		// Delete previous version profile image
+		deleteVersion(versionId);
+		log.info("Successfully updated profile image using version {}", versionId);
 	}
 
 	/**
