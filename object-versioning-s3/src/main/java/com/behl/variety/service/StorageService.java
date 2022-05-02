@@ -105,6 +105,20 @@ public class StorageService {
 	}
 
 	/**
+	 * Retrieves profile image by verionId
+	 * 
+	 * @param versionId corresponding to the version of profile image to be
+	 *                  retrieved
+	 * @return object of S3Object.class corresponding to the version of profile
+	 *         image specified
+	 */
+	public S3Object retreive(final String versionId) {
+		final var getObjectRequest = new GetObjectRequest(awsS3ConfigurationProperties.getS3().getBucketName(),
+				KEY_NAME, versionId);
+		return amazonS3.getObject(getObjectRequest);
+	}
+
+	/**
 	 * Method to return list of all profile image versions
 	 * 
 	 * @return S3Object representing the transcribed result

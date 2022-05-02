@@ -53,6 +53,18 @@ public class ProfileImageController {
 		return ResponseEntity.status(HttpStatus.OK).body(storageService.retrieveVersions());
 	}
 
+	@GetMapping(value = "/version/{versionId}")
+	@ResponseStatus(value = HttpStatus.OK)
+	public ResponseEntity<InputStreamResource> retreiveProfileImageByVersion(
+			@PathVariable(name = "versionId") final String versionId) {
+		final var profileImage = storageService.retreive(versionId);
+		final var objectContent = new InputStreamResource(profileImage.getObjectContent());
+		return ResponseEntity.status(HttpStatus.OK)
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment;filename=" + profileImage.getObjectMetadata().getContentDisposition())
+				.body(objectContent);
+	}
+
 	@PutMapping(value = "/version/{versionId}")
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public ResponseEntity<HttpStatus> setPreviousVersionAsCurrentProfileImage(
