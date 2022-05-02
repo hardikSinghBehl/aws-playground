@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.model.S3VersionSummary;
 
@@ -22,7 +24,8 @@ public class ProfileImageController {
 
 	@PostMapping
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public ResponseEntity<HttpStatus> profileImageUploader() {
+	public ResponseEntity<HttpStatus> profileImageUploader(
+			@RequestPart(name = "file", required = true) final MultipartFile file) {
 		return null;
 	}
 
@@ -38,9 +41,10 @@ public class ProfileImageController {
 		return null;
 	}
 
-	@PutMapping(value = "/version")
+	@PutMapping(value = "/version/{versionId}")
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public ResponseEntity<HttpStatus> setPreviousVersionAsCurrentProfileImage() {
+	public ResponseEntity<HttpStatus> setPreviousVersionAsCurrentProfileImage(
+			@PathVariable(name = "versionId") final String versionId) {
 		return null;
 	}
 
