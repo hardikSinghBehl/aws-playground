@@ -3,6 +3,7 @@ package com.behl.variety.controller;
 import java.util.List;
 
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,28 +18,39 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.model.S3VersionSummary;
+import com.behl.variety.service.StorageService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(value = "/v1/user/profile/image")
+@RequiredArgsConstructor
 public class ProfileImageController {
+
+	private final StorageService storageService;
 
 	@PostMapping
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public ResponseEntity<HttpStatus> profileImageUploader(
 			@RequestPart(name = "file", required = true) final MultipartFile file) {
-		return null;
+		return ResponseEntity.status(storageService.save(file)).build();
 	}
 
 	@GetMapping
 	@ResponseStatus(value = HttpStatus.OK)
 	public ResponseEntity<InputStreamResource> retreiveCurrentProfileImage() {
-		return null;
+		final var currentProfileImage = storageService.retreive();
+		final var objectContent = new InputStreamResource(currentProfileImage.getObjectContent());
+		return ResponseEntity.status(HttpStatus.OK)
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment;filename=" + currentProfileImage.getObjectMetadata().getContentDisposition())
+				.body(objectContent);
 	}
 
 	@GetMapping(value = "/version")
 	@ResponseStatus(value = HttpStatus.OK)
 	public ResponseEntity<List<S3VersionSummary>> retreiveAllProfileImageVersions() {
-		return null;
+		return ResponseEntity.status(HttpStatus.OK).body(storageService.retrieveVersions());
 	}
 
 	@PutMapping(value = "/version/{versionId}")
@@ -52,7 +64,8 @@ public class ProfileImageController {
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public ResponseEntity<HttpStatus> deleteProfileImageVersion(
 			@PathVariable(name = "versionId") final String versionId) {
-		return null;
+		storageService.deleteVersion(versionId);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 }
