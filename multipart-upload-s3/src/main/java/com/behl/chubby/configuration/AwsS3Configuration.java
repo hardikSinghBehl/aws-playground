@@ -39,8 +39,10 @@ public class AwsS3Configuration {
 	@Bean
 	@Primary
 	public TransferManager transferManager() {
-		return TransferManagerBuilder.standard().withS3Client(amazonS3()).withMultipartUploadThreshold(
-				FileSizeConverter.getMb().inBytes(awsS3ConfigurationProperties.getS3().getMultipartObjectSize()))
+		final Long multipartObjectSize = FileSizeConverter.getMb()
+				.inBytes(awsS3ConfigurationProperties.getS3().getMultipartObjectSize());
+		return TransferManagerBuilder.standard().withS3Client(amazonS3())
+				.withMultipartUploadThreshold(multipartObjectSize).withMinimumUploadPartSize(multipartObjectSize)
 				.build();
 	}
 
