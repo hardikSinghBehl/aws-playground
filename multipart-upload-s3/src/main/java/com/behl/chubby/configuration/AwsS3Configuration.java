@@ -14,15 +14,18 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.behl.chubby.properties.AwsIAMConfigurationProperties;
+import com.behl.chubby.properties.AwsS3ConfigurationProperties;
+import com.behl.chubby.utility.FileSizeConverter;
 
 import lombok.AllArgsConstructor;
 
 @Configuration
 @AllArgsConstructor
-@EnableConfigurationProperties(value = AwsIAMConfigurationProperties.class)
+@EnableConfigurationProperties(value = { AwsIAMConfigurationProperties.class, AwsS3ConfigurationProperties.class })
 public class AwsS3Configuration {
 
 	private final AwsIAMConfigurationProperties awsIAMConfigurationProperties;
+	private final AwsS3ConfigurationProperties awsS3ConfigurationProperties;
 
 	@Bean
 	@Primary
@@ -36,8 +39,9 @@ public class AwsS3Configuration {
 	@Bean
 	@Primary
 	public TransferManager transferManager() {
-		return TransferManagerBuilder.standard().withS3Client(amazonS3())
-				.withMultipartUploadThreshold((long) (10 * 1024 * 1024)).build();
+		return TransferManagerBuilder.standard().withS3Client(amazonS3()).withMultipartUploadThreshold(
+				FileSizeConverter.getMb().inBytes(awsS3ConfigurationProperties.getS3().getMultipartObjectSize()))
+				.build();
 	}
 
 }

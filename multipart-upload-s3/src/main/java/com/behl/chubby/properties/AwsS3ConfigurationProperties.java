@@ -13,6 +13,13 @@ public class AwsS3ConfigurationProperties {
 	@Data
 	public class S3 {
 		private String bucketName;
+
+		/**
+		 * Size in Megabytes of each part in an multipart upload. If any file with total
+		 * size less than the configured value is provided to the API, it won't be
+		 * uploaded in parts
+		 */
+		private Integer multipartObjectSize;
 	}
 
 }
