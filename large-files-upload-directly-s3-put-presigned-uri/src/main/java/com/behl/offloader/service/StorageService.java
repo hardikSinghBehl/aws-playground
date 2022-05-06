@@ -29,7 +29,8 @@ public class StorageService {
 	public String generateTemporaryPutUri(final String objectKey) {
 		final GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
 				awsS3ConfigurationProperties.getS3().getBucketName(), objectKey, HttpMethod.PUT);
-		generatePresignedUrlRequest.setExpiration(new LocalDateTime().plusMinutes(20).toDate());
+		generatePresignedUrlRequest.setExpiration(new LocalDateTime()
+				.plusMinutes(awsS3ConfigurationProperties.getS3().getPresignedUriExpiration()).toDate());
 
 		final URL presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 		try {

@@ -13,6 +13,12 @@ public class AwsS3ConfigurationProperties {
 	@Data
 	public class S3 {
 		private String bucketName;
+
+		/**
+		 * Signifies the time in minues after creation until which the generated
+		 * presigned URI will be valid
+		 */
+		private Integer presignedUriExpiration;
 	}
 
 }
