@@ -77,7 +77,6 @@ public class StorageService {
 
 	private ObjectMetadata constructMetadata(final MultipartFile file) {
 		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentLength(file.getSize());
 		metadata.setContentType(file.getContentType());
 		metadata.setContentDisposition(file.getOriginalFilename());
 		return metadata;
