@@ -3,9 +3,7 @@
 
 #### Demonstration Video
 
-```
-COMING SOON: DEBUGGING CODE RIGHT NOW
-```
+https://user-images.githubusercontent.com/69693621/167136277-854f2da0-175b-42c7-aa7d-7bd109bebe97.mov
 
 ### Local Setup
 * Install Java 17 (recommended to use [SdkMan](https://sdkman.io))
