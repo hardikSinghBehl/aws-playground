@@ -1,5 +1,7 @@
 package com.behl.monjo.controller;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.services.s3.model.S3Object;
 import com.behl.monjo.service.StorageService;
 
 import lombok.AllArgsConstructor;
@@ -32,8 +33,14 @@ public class StorageController {
 
 	@GetMapping(value = "/{key}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)
-	public ResponseEntity<S3Object> retrive(@PathVariable(required = true, name = "key") final String objectKey) {
-		return ResponseEntity.ok(storageService.retrieve(objectKey));
+	public ResponseEntity<InputStreamResource> retrive(
+			@PathVariable(required = true, name = "key") final String objectKey) {
+		final var retrievedObject = storageService.retrieve(objectKey);
+		final var retrievedObjectContent = new InputStreamResource(retrievedObject.getObjectContent());
+		return ResponseEntity.status(HttpStatus.OK)
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+						"attachment;filename=" + retrievedObject.getObjectMetadata().getContentDisposition())
+				.body(retrievedObjectContent);
 	}
 
 }
