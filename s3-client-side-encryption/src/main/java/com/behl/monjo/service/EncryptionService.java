@@ -16,6 +16,7 @@ import com.amazonaws.encryptionsdk.CryptoResult;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKey;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKeyProvider;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.util.IOUtils;
 import com.behl.monjo.properties.AwsKmsConfigurationProperties;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,8 @@ public class EncryptionService {
 
 		CryptoResult<byte[], KmsMasterKey> encryptResult;
 		try {
-			encryptResult = crypto.encryptData(kmsMasterKeyProvider, file.getBytes(), context);
+			encryptResult = crypto.encryptData(kmsMasterKeyProvider, IOUtils.toString(file.getInputStream()).getBytes(),
+					context);
 		} catch (final IOException exception) {
 			log.error("Exception occurred during data encryption", exception);
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -56,7 +58,7 @@ public class EncryptionService {
 		if (!decryptResult.getMasterKeyIds().get(0).equals(awsKmsConfigurationProperties.getKms().getKeyArn()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid KMS Key found");
 
-		s3Object.setObjectContent(new ByteArrayInputStream(decryptResult.getResult()));
+		s3Object.setObjectContent(new ByteArrayInputStream(new String(decryptResult.getResult()).getBytes()));
 		return s3Object;
 	}
 
