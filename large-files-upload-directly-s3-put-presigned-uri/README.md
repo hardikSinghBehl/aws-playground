@@ -1,9 +1,10 @@
-### S3 Client side encryption using [AWS Encryption SDK](https://github.com/aws/aws-encryption-sdk-java) and KMS
-##### Java Spring-boot application exposing REST API endpoints to store and retreive objects to/from AWS S3. The file content is encrypted before being uploaded to S3 and decryption also takes place at the application level. This approach allows us to achieve both `at-rest` and `in-transit` encryption for our data while managing the encryption process at the application level and modifying it as per business requirements.
+### S3 Presigned URL to upload an Object
+This architecture can be used to offload the backend server from the task of large object uploads, hence reducing the CPU Utilization and RAM usage. A Presigned URI can be used to provide access to the client, to upload directly into the configured S3 Bucket. Temporary credentials are embedded into the URI itself and the client inherits all the permissions attached to the creater IAM user.
 
 #### Demonstration Video
 
-https://user-images.githubusercontent.com/69693621/167136277-854f2da0-175b-42c7-aa7d-7bd109bebe97.mov
+https://user-images.githubusercontent.com/69693621/167198124-df1fcb52-dac1-424e-8b48-8f828f32e0b2.mov
+
 
 ### Local Setup
 * Install Java 17 (recommended to use [SdkMan](https://sdkman.io))
@@ -22,23 +23,20 @@ sdk install maven
 ```
 {
     "Version": "2012-10-17",
-    "Id": "S3ClientSideEncryptionPoc",
+    "Id": "S3PresignedPutUriPoc",
     "Statement": [
         {
-            "Sid": "S3BasicCrudOperations",
+            "Sid": "S3ObjectUploadOperation",
             "Effect": "Allow",
             "Action": [
-                "s3:PutObject",
-                "s3:GetObject"
-            ],
+                "s3:PutObject"            ],
             "Resource": "arn:aws:s3:::<bucket-name-goes-here>/*"
         }
     ]
 }
 ```
-* Create a symmetric encryption KMS key in AWS KMS and provide permissions to the above created IAM user| [Guide](https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html)
 * Clone the repository or this [individual subdirectory](https://github.com/hardikSinghBehl/aws-java-reference-pocs/blob/main/INDIVIDUAL_FOLDER_CLONE.md)
-* Configure the above created security credentials corresponding to the created user, the ARN of the KMS key and the bucket name in the `application.properties` file
+* Configure the above created security credentials corresponding to the created user and the bucket name in the `application.properties` file
 
 ```
 # IAM Configuration
@@ -47,9 +45,7 @@ com.behl.aws.secret-access-key=<IAM-Secret-Access-Key-Goes-Here>
 
 # S3 Configuration
 com.behl.aws.s3.bucket-name=<S3-Bucket-Name-Goes-Here>
-
-# KMS Configuration
-com.behl.aws.kms.key-arn=<KMS-Key-ARN-Goes-Here>
+com.behl.aws.s3.presigned-uri-expiration=<Validity-Time-Period-Of-Presigned-URI>
 ```
 * Run the spring-boot application
 
@@ -57,11 +53,11 @@ com.behl.aws.kms.key-arn=<KMS-Key-ARN-Goes-Here>
 mvn spring-boot:run
 ```
 
-* API endpoints are accessible using below mentioned paths
+* API endpoint is accessible on the below mentioned path, and can be used to generate a presigned URI against the provided objectKey in path variable
+
 ```
-POST http://localhost:8090/files
-A file value in key with name file in form-data
+GET http://localhost:8080/v1/temporary/upload/{objectKey}
 ```
 ```
-GET http://localhost:8090/files/{objectKey}
+EXAMPLE: curl localhost:8080/v1/temporary/upload/index.html
 ```
