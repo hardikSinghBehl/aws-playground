@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,18 +16,15 @@ import com.amazonaws.encryptionsdk.kms.KmsMasterKey;
 import com.amazonaws.encryptionsdk.kms.KmsMasterKeyProvider;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
-import com.behl.monjo.properties.AwsKmsConfigurationProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@EnableConfigurationProperties(value = AwsKmsConfigurationProperties.class)
 @Slf4j
 public class EncryptionService {
 
-	private final AwsKmsConfigurationProperties awsKmsConfigurationProperties;
 	private final AwsCrypto crypto = AwsCrypto.standard();
 	private final KmsMasterKeyProvider kmsMasterKeyProvider;
 
@@ -54,10 +50,6 @@ public class EncryptionService {
 			log.error("Exception occurred during data decryption", exception);
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-
-		if (!decryptResult.getMasterKeyIds().get(0).equals(awsKmsConfigurationProperties.getKms().getKeyArn()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid KMS Key found");
-
 		s3Object.setObjectContent(new ByteArrayInputStream(new String(decryptResult.getResult()).getBytes()));
 		return s3Object;
 	}
