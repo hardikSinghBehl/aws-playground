@@ -15,11 +15,18 @@ public class AwsS3ConfigurationProperties {
 		private String bucketName;
 
 		/**
+		 * Defines the maximum size in Megabytes of an object, which when exceeded, the
+		 * upload takes place as a multipart-upload
+		 */
+		private Integer multipartThreshold;
+
+		/**
 		 * Size in Megabytes of each part in an multipart upload. If any file with total
 		 * size less than the configured value is provided to the API, it won't be
 		 * uploaded in parts
 		 */
 		private Integer multipartObjectSize;
+
 	}
 
 }
