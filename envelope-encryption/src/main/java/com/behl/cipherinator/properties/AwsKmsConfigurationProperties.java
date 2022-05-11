@@ -17,6 +17,9 @@ public class AwsKmsConfigurationProperties {
 		 * https://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html
 		 */
 		private String keyId;
+
+		private String encryptionAlgorithm;
+		private String encodingType;
 	}
 
 }

@@ -35,13 +35,13 @@ import lombok.extern.slf4j.Slf4j;
 @EnableConfigurationProperties(value = AwsKmsConfigurationProperties.class)
 public class EncryptionService {
 
-	private static final String ENCODING_TYPE = "ISO-8859-1";
-	private static final String ENCRYPTION_ALGORITHM = "AES";
-
 	private final AWSKMS awsKms;
 	private final AwsKmsConfigurationProperties awsKmsConfigurationProperties;
 
 	public EncryptionResultDto encrypt(final String password) {
+		final String ENCRYPTION_ALGORITHM = awsKmsConfigurationProperties.getKms().getEncryptionAlgorithm();
+		final String ENCODING_TYPE = awsKmsConfigurationProperties.getKms().getEncodingType();
+
 		final GenerateDataKeyRequest generateDataKeyRequest = new GenerateDataKeyRequest()
 				.withKeyId(awsKmsConfigurationProperties.getKms().getKeyId()).withKeySpec(DataKeySpec.AES_256);
 		GenerateDataKeyResult dataKeyResult = awsKms.generateDataKey(generateDataKeyRequest);
@@ -67,6 +67,8 @@ public class EncryptionService {
 	}
 
 	public String decrypt(final String encryptedPassword, final String cipherDataKey) {
+		final String ENCRYPTION_ALGORITHM = awsKmsConfigurationProperties.getKms().getEncryptionAlgorithm();
+		final String ENCODING_TYPE = awsKmsConfigurationProperties.getKms().getEncodingType();
 		DecryptRequest decryptRequest;
 		try {
 			decryptRequest = new DecryptRequest()
