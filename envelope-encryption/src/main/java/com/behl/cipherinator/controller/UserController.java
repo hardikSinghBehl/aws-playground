@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.behl.cipherinator.dto.ExceptionResponseDto;
 import com.behl.cipherinator.dto.UserCreationRequestDto;
-import com.behl.cipherinator.dto.UserLoginRequestDto;
 import com.behl.cipherinator.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,20 +39,6 @@ public class UserController {
 	public ResponseEntity<HttpStatus> create(@Valid @RequestBody final UserCreationRequestDto userCreationRequest) {
 		userService.create(userCreationRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
-	}
-	
-	@PostMapping(value = "/api/v1/users/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(summary = "Logs in user into the system", description = "Returns 200 HTTP Response corresponding to valid login credentials")
-	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Authentication successfull",
-					content = @Content(schema = @Schema(implementation = Void.class))),
-			@ApiResponse(responseCode = "401", description = "Bad credentials provided. Failed to authenticate user",
-					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class))),
-			@ApiResponse(responseCode = "400", description = "Malformed request.",
-					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class)))})
-	public ResponseEntity<HttpStatus> login(@Valid @RequestBody final UserLoginRequestDto userLoginRequest) {
-		userService.login(userLoginRequest);
-		return ResponseEntity.ok().build();
 	}
 
 }
