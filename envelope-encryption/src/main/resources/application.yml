@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  
+spring:
+  profiles:
+    active: ${ACTIVE_PROFILE}
+  application:
+    name: cipherinator
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      
+com:
+  behl:
+    cipherinator:
+      aws:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+        region: ${AWS_REGION}
+        endpoint: ${AWS_ENDPOINT_URL}
+        kms:
+          key-id: ${AWS_KMS_KEY_ID}
