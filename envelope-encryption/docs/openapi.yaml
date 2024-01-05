@@ -1,0 +1,119 @@
+openapi: 3.0.1
+info:
+  title: Cipherinator
+  description: Java backend application leveraging envelope encryption to store and validate passwords using AWS KMS
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Local Backend Server
+tags:
+- name: Authentication
+  description: Endpoints for user authentication
+- name: User Management
+  description: Endpoints for managing user accounts
+paths:
+  /api/v1/users:
+    post:
+      tags:
+      - User Management
+      summary: Creates a user account
+      description: Registers a unique user record in the system corresponding to provided
+        information
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreationRequestDto'
+        required: true
+      responses:
+        "201":
+          description: User account created successfully
+        "400":
+          description: Malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "409":
+          description: User account with provided UserName already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+  /api/v1/users/login:
+    post:
+      tags:
+      - Authentication
+      summary: Logs in user into the system
+      description: Returns 200 HTTP Response corresponding to valid login credentials
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequestDto'
+        required: true
+      responses:
+        "401":
+          description: Bad credentials provided. Failed to authenticate user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "400":
+          description: Malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "200":
+          description: Authentication successfull
+components:
+  schemas:
+    UserCreationRequestDto:
+      title: UserCreationRequest
+      required:
+      - Password
+      - UserName
+      type: object
+      properties:
+        UserName:
+          maxLength: 10
+          minLength: 3
+          type: string
+          description: Unique UserName for user record
+          example: hardik.behl
+        Password:
+          maxLength: 20
+          minLength: 3
+          type: string
+          description: Secure Password to enable user login
+          example: SomethingSecure@123
+      readOnly: true
+    ExceptionResponseDto:
+      title: Error
+      type: object
+      properties:
+        Status:
+          type: string
+        Description:
+          type: object
+      readOnly: true
+    UserLoginRequestDto:
+      title: UserLoginRequest
+      required:
+      - Password
+      - UserName
+      type: object
+      properties:
+        UserName:
+          type: string
+          description: UserName associated with user record already created in the
+            system
+          example: hardik.behl
+        Password:
+          type: string
+          description: Password corresponding to provided UserName
+          example: SomethingSecure@123
+      readOnly: true
