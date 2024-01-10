@@ -45,8 +45,9 @@ public class EnvelopeEncryptionService {
 	 * 
 	 * The Encryptor can be used to encrypt multiple data fields using the same DEK,
 	 * minimizing the need for repeated calls to AWS KMS and reducing overall
-	 * latency. The encrypted data key corresponding to the current Encryptor instance is required to be stored with the encrypted
-	 * data field(s) in a datastore to facilitate decryption.
+	 * latency. The encrypted data key corresponding to the current Encryptor
+	 * instance is required to be stored with the encrypted data field(s) in a
+	 * datastore to facilitate decryption.
 	 * 
 	 * @return Encryptor An instance of the Encryptor class.
 	 */
