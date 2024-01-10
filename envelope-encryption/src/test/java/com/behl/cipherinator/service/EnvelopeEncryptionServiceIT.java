@@ -63,7 +63,8 @@ class EnvelopeEncryptionServiceIT {
 		assertThat(encryptedDataKey).isNotBlank().isBase64();
 		
 		// decrypt encrypted data back to plain-text
-		final var decryptedData = envelopeEncryptionService.decrypt(encryptedData, encryptedDataKey);
+		final var decryptor = envelopeEncryptionService.getDecryptor(encryptedDataKey);
+		final var decryptedData = decryptor.decrypt(encryptedData);
 		
 		// assert decrypted data matches original generated plain-text data
 		assertThat(decryptedData).isNotBlank().isEqualTo(data);
