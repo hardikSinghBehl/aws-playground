@@ -19,6 +19,7 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<modelmapper.version>3.2.0</modelmapper.version>
 		<aws.sdk.version>1.12.606</aws.sdk.version>
 		<springdoc.openapi.version>2.3.0</springdoc.openapi.version>
 	</properties>
@@ -64,6 +65,11 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>${modelmapper.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
