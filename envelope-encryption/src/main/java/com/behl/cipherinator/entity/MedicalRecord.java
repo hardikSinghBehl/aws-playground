@@ -8,6 +8,15 @@ import com.behl.cipherinator.utility.Encryptable;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Represents a patient's medical record in the Datasource.
+ *
+ * Fields containing sensitive personal and health information, especially
+ * Protected Health Information (PHI), are marked with {@link Encryptable}. This
+ * annotation indicates the need for encryption and decryption of these fields
+ * using {@link com.behl.cipherinator.utility.FieldEncryptionManager} when
+ * storing or retrieving them from the database.
+ */
 @Getter
 @Setter
 @DynamoDBTable(tableName = "MedicalRecords")
