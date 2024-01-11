@@ -1,6 +1,6 @@
 #!/bin/bash
-table_name="users"
-hash_key="user_name"
+table_name="MedicalRecords"
+hash_key="Id"
 
 awslocal dynamodb create-table \
     --table-name "$table_name" \
