@@ -9,7 +9,7 @@ In this practical proof of concept, envelope encryption is used to secure patien
 #### Important classes
 * [EnvelopeEncryptionService.java](https://github.com/hardikSinghBehl/aws-playground/blob/main/envelope-encryption/src/main/java/com/behl/cipherinator/service/EnvelopeEncryptionService.java)
 * [FieldEncryptionManager.java](https://github.com/hardikSinghBehl/aws-playground/blob/main/envelope-encryption/src/main/java/com/behl/cipherinator/utility/FieldEncryptionManager.java)
-* [MedicalRecordService.java](https://github.com/hardikSinghBehl/aws-playground/blob/refactor/envelope-encryption/envelope-encryption/src/main/java/com/behl/cipherinator/service/MedicalRecordService.java)
+* [MedicalRecordService.java](https://github.com/hardikSinghBehl/aws-playground/blob/main/envelope-encryption/src/main/java/com/behl/cipherinator/service/MedicalRecordService.java)
 
 #### Testing
 LocalStack module of [Testcontainers](https://java.testcontainers.org/modules/localstack/) is leveraged for testing the application. Integration tests can be executed with the command `mvn integration-test`. 
@@ -19,6 +19,9 @@ LocalStack module of [Testcontainers](https://java.testcontainers.org/modules/lo
 #### Local Setup
 The application can be started locally using Docker with the below commands. [Localstack](https://www.localstack.cloud/) is used to create required AWS resources eliminating the need of provisioning actual AWS services.
 
+```bash
+chmod +x localstack/init-*
+```
 ```bash
 sudo docker-compose build
 ```
