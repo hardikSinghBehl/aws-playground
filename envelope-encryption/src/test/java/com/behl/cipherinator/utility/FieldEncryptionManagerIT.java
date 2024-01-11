@@ -1,4 +1,4 @@
-package com.behl.cipherinator.service;
+package com.behl.cipherinator.utility;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,11 +14,18 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
+import com.behl.cipherinator.service.EnvelopeEncryptionService;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.bytebuddy.utility.RandomString;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class EnvelopeEncryptionServiceIT {
+class FieldEncryptionManagerIT {
+	
+	@Autowired
+	private FieldEncryptionManager fieldEncryptionManager;
 	
 	@Autowired
 	private EnvelopeEncryptionService envelopeEncryptionService;
@@ -45,25 +52,39 @@ class EnvelopeEncryptionServiceIT {
 	}
 	
 	@Test
-	void shouldPerformEnvelopeEncryptionSuccessfully() {
-		// generate random plain-text data
-		final var data = RandomString.make();
+	void shouldEncryptAndDecryptAnnotatedFields() {
+		// prepare object with plaintext values
+		final var plaintextFirstName = RandomString.make();
+		final var plaintextLastName = RandomString.make();
+		final var person = new Person(plaintextFirstName, plaintextLastName);
 		
-		// encrypt plain-text data
+		// encrypt the object by calling the method under test 
 		final var encryptor = envelopeEncryptionService.getEncryptor();
-		final var encryptedData = encryptor.encrypt(data);
+		fieldEncryptionManager.encryptFields(person, encryptor);
 		
-		// assert encrypted data and encrypted data key are Base64-encoded
-		final var encryptedDataKey = encryptor.getEncryptedDataKey();
-		assertThat(encryptedData).isNotBlank().isBase64();
-		assertThat(encryptedDataKey).isNotBlank().isBase64();
+		// assert the field values in the object are encrypted
+		assertThat(person.getFirstName()).isNotBlank().isNotEqualTo(plaintextFirstName).isBase64();
+		assertThat(person.getLastName()).isNotBlank().isNotEqualTo(plaintextLastName).isBase64();
 		
-		// decrypt encrypted data back to plain-text
-		final var decryptor = envelopeEncryptionService.getDecryptor(encryptedDataKey);
-		final var decryptedData = decryptor.decrypt(encryptedData);
+		// decrypt the object by calling the method under test
+		final var decryptor = envelopeEncryptionService.getDecryptor(encryptor.getEncryptedDataKey());
+		fieldEncryptionManager.decryptFields(person, decryptor);
 		
-		// assert decrypted data matches original generated plain-text data
-		assertThat(decryptedData).isNotBlank().isEqualTo(data);
+		// assert the field values in the object are decrypted back to their original value
+		assertThat(person.getFirstName()).isNotBlank().isEqualTo(plaintextFirstName);
+		assertThat(person.getLastName()).isNotBlank().isEqualTo(plaintextLastName);
 	}
-
+	
+	@Getter
+	@AllArgsConstructor
+	class Person {
+		
+		@Encryptable
+		private String firstName;
+		
+		@Encryptable
+		private String lastName;
+				
+	}
+	
 }

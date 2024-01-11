@@ -16,16 +16,16 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-import com.behl.cipherinator.entity.User;
+import com.behl.cipherinator.entity.MedicalRecord;
 
 import net.bytebuddy.utility.RandomString;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class UserRepositoryIT {
+class MedicalRecordRepositoryIT {
 
 	@Autowired
-	private UserRepository userRepository;
+	private MedicalRecordRepository medicalRecordRepository;
 
 	private static LocalStackContainer localStackContainer;
 
@@ -46,65 +46,41 @@ class UserRepositoryIT {
 	}
 
 	@Test
-	void shouldReturnEmptyOptionalForNonExistingUserName() {
-		// generate random user-name
-		final var userName = RandomString.make();
+	void shouldReturnEmptyOptionalForNonExistingMedicalRecord() {
+		// generate random medical record Id
+		final var medicalRecordId = RandomString.make();
 
 		// call method under test
-		final Optional<User> user = userRepository.findByUserName(userName);
+		final Optional<MedicalRecord> medicalRecord = medicalRecordRepository.findById(medicalRecordId);
 
 		// assert response
-		assertThat(user).isEmpty();
+		assertThat(medicalRecord).isEmpty();
 	}
 
 	@Test
-	void shouldSaveUserSuccessfully() {
-		// create user record
-		final var userName = RandomString.make();
-		final var password = RandomString.make();
+	void shouldSaveMedicalRecordSuccessfully() {
+		// create medical record
+		final var medicalRecordId = RandomString.make();
+		final var patientName = RandomString.make();
+		final var medicalHistory = RandomString.make();
 		final var encryptedDataKey = RandomString.make();
-		final var user = new User();
-		user.setUserName(userName);
-		user.setPassword(password);
-		user.setEncryptedDataKey(encryptedDataKey);
+		final var medicalRecord = new MedicalRecord();
+		medicalRecord.setId(medicalRecordId);
+		medicalRecord.setPatientName(patientName);
+		medicalRecord.setMedicalHistory(medicalHistory);
+		medicalRecord.setEncryptedDataKey(encryptedDataKey);
 
 		// call method under test
-		userRepository.save(user);
+		medicalRecordRepository.save(medicalRecord);
 
 		// assert record existence in datasource
-		final Optional<User> retrievedUserRecord = userRepository.findByUserName(userName);
-		assertThat(retrievedUserRecord).isPresent().get().satisfies(retrievedUser -> {
-			assertThat(retrievedUser.getUserName()).isEqualTo(userName);
-			assertThat(retrievedUser.getPassword()).isEqualTo(password);
-			assertThat(retrievedUser.getEncryptedDataKey()).isEqualTo(encryptedDataKey);
+		final Optional<MedicalRecord> retrievedMedicalRecord = medicalRecordRepository.findById(medicalRecordId);
+		assertThat(retrievedMedicalRecord).isPresent().get().satisfies(record -> {
+			assertThat(record.getId()).isEqualTo(medicalRecordId);
+			assertThat(record.getPatientName()).isEqualTo(patientName);
+			assertThat(record.getMedicalHistory()).isEqualTo(medicalHistory);
+			assertThat(record.getEncryptedDataKey()).isEqualTo(encryptedDataKey);
 		});
-	}
-
-	@Test
-	void shouldReturnTrueIfUserExistsByUserName() {
-		// create user record in datasource
-		final var userName = RandomString.make();
-		final var user = new User();
-		user.setUserName(userName);
-		userRepository.save(user);
-
-		// call method under test
-		final var userNameExists = userRepository.existsByUserName(userName);
-
-		// assert response
-		assertThat(userNameExists).isTrue();
-	}
-
-	@Test
-	void shouldReturnFalseIfUserRecordDoesNotExistByUserName() {
-		// generate random user-name
-		final var userName = RandomString.make();
-
-		// call method under test
-		final var userNameExists = userRepository.existsByUserName(userName);
-
-		// assert response
-		assertThat(userNameExists).isFalse();
 	}
 
 }

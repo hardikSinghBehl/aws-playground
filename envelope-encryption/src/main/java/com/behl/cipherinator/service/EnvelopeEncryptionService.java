@@ -16,7 +16,6 @@ import com.amazonaws.services.kms.model.DecryptRequest;
 import com.amazonaws.services.kms.model.GenerateDataKeyRequest;
 import com.behl.cipherinator.configuration.AwsConfiguration;
 import com.behl.cipherinator.configuration.AwsConfigurationProperties;
-import com.behl.cipherinator.dto.EncryptionResultDto;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -40,56 +39,111 @@ public class EnvelopeEncryptionService {
 	private final AwsConfigurationProperties awsConfigurationProperties;
 	
 	/**
-	 * Encrypts the provided data using envelope encryption. A data encryption key
-	 * (DEK) is generated using AWS KMS, the data is encrypted with the DEK using
-	 * the AES algorithm, and returns the encrypted data along with encrypted data
-	 * key both of which are Base64-encoded.
-	 *
-	 * @param data The data to be encrypted.
-	 * @return {@link EncryptionResultDto} containing the encrypted data and the
-	 *         encrypted data key.
-	 * @throws IllegalArgumentException if provided argument is {@code null}
+	 * Creates and returns an Encryptor instance for performing encryption
+	 * operation. The data encryption key (DEK) is generated using AWS KMS, which is
+	 * used when initializing the Encryptor class.
+	 * 
+	 * The Encryptor can be used to encrypt multiple data fields using the same DEK,
+	 * minimizing the need for repeated calls to AWS KMS and reducing overall
+	 * latency. The encrypted data key corresponding to the current Encryptor
+	 * instance is required to be stored with the encrypted data field(s) in a
+	 * datastore to facilitate decryption.
+	 * 
+	 * @return Encryptor An instance of the Encryptor class.
 	 */
-	public EncryptionResultDto encrypt(@NonNull final String data) {
+	public Encryptor getEncryptor() {
 		final var keyId = awsConfigurationProperties.getKms().getKeyId();
 		final var generateDataKeyRequest = new GenerateDataKeyRequest().withKeyId(keyId).withKeySpec(DataKeySpec.AES_256);
 		final var dataKeyResult = awsKms.generateDataKey(generateDataKeyRequest);
 		
-		final var encryptedData = performAESCipherOperation(Cipher.ENCRYPT_MODE, dataKeyResult.getPlaintext().array(), data.getBytes());
-		dataKeyResult.getPlaintext().clear();
-		
-		final var encoder = Base64.getEncoder();
-		final var encodedEncryptedData = encoder.encodeToString(encryptedData);
-		final var encryptedDataKey = encoder.encodeToString(dataKeyResult.getCiphertextBlob().array());
+		final var dataEncryptionKey = dataKeyResult.getPlaintext().array();
+		final var encryptedDataKey = dataKeyResult.getCiphertextBlob().array();
 
-		return EncryptionResultDto.builder()
-				.encryptedData(encodedEncryptedData)
-				.encryptedDataKey(encryptedDataKey)
-				.build();
+		return new Encryptor(dataEncryptionKey, encryptedDataKey);
 	}
+	
+	@RequiredArgsConstructor
+	public class Encryptor {
 
+		private final byte[] dataEncryptionKey;
+		private final byte[] encryptedDataKey;
+
+		/**
+		 * Encrypts the provided data using the DEK corresponding to the current
+		 * Encryptor instance.
+		 *
+		 * @param data The data to be encrypted.
+		 * @return The Base64-encoded encrypted data.
+		 * @throws IllegalArgumentException if provided argument is {@code null}
+		 */
+		public String encrypt(@NonNull final String data) {
+			final var encryptedData = performAESCipherOperation(Cipher.ENCRYPT_MODE, dataEncryptionKey,	data.getBytes());
+			return Base64.getEncoder().encodeToString(encryptedData);
+		}
+
+		/**
+		 * Returns the encrypted DEK corresponding to the current Encryptor instance.
+		 * This encrypted key should be stored alongside the encrypted data for future
+		 * decryption operation.
+		 *
+		 * @return The Base64-encoded encrypted DEK.
+		 */
+		public String getEncryptedDataKey() {
+			final var encoder = Base64.getEncoder();
+			return encoder.encodeToString(encryptedDataKey);
+		}
+
+	}
+	
 	/**
-	 * Decrypts the provided encrypted data using envelope encryption. Uses the
-	 * encrypted data key to obtain the data encryption key (DEK) from AWS KMS, and
-	 * then uses the DEK to decrypt the data using the AES algorithm.
+	 * Creates and returns a Decryptor instance for decrypting data. The encrypted
+	 * data key is used to obtain the plaintext data encryption key (DEK) from AWS
+	 * KMS, which is used when initializing the Decryptor class.
 	 *
-	 * @param encryptedData The Base64-encoded data to be decrypted.
+	 * The Decryptor can be used to decrypt multiple data fields using the same DEK,
+	 * minimizing the need for repeated calls to AWS KMS and reducing overall
+	 * latency.
+	 *
 	 * @param encryptedDataKey The Base64-encoded encrypted data key
-	 * @return The decrypted data as a String.
-	 * @throws IllegalArgumentException if any provided argument is {@code null}
+	 * @return Decryptor An instance of the Decryptor class.
+	 * @throws IllegalArgumentException if the encryptedDataKey is {@code null}.
 	 */
-	public String decrypt(@NonNull final String encryptedData, @NonNull final String encryptedDataKey) {
+	public Decryptor getDecryptor(@NonNull final String encryptedDataKey) {
 		final var decoder = Base64.getDecoder();
 		final var decodedEncryptedDataKey = decoder.decode(encryptedDataKey);
-		final var decodedEncryptedData = decoder.decode(encryptedData);
-
+		
 		final var decryptRequest = new DecryptRequest().withCiphertextBlob(ByteBuffer.wrap(decodedEncryptedDataKey));
 		final var decryptResult = awsKms.decrypt(decryptRequest);
-
-		final var decryptedData = performAESCipherOperation(Cipher.DECRYPT_MODE, decryptResult.getPlaintext().array(), decodedEncryptedData);
-		decryptResult.getPlaintext().clear();
-
-		return new String(decryptedData);
+		final var dataEncryptionKey = decryptResult.getPlaintext().array();
+		
+		return new Decryptor(dataEncryptionKey);
+	}
+	
+	@RequiredArgsConstructor
+	public class Decryptor {
+		
+		private final byte[] dataEncryptionKey;
+		
+		/**
+		 * Decrypts the provided encrypted data using the plaintext data encryption key
+		 * (DEK) stored in the current Decryptor instance.
+		 *
+		 * This method is intended to be used multiple times with the same DEK for
+		 * decrypting multiple fields, thus leveraging the same DEK without additional
+		 * AWS KMS calls for each decryption operation.
+		 *
+		 * @param encryptedData The Base64-encoded data to be decrypted.
+		 * @return The decrypted data as a String.
+		 * @throws IllegalArgumentException if the encryptedData is {@code null}.
+		 */
+		public String decrypt(@NonNull final String encryptedData) {
+			final var decoder = Base64.getDecoder();
+			final var decodedEncryptedData = decoder.decode(encryptedData);
+			
+			final var decryptedData = performAESCipherOperation(Cipher.DECRYPT_MODE, dataEncryptionKey, decodedEncryptedData);
+			return new String(decryptedData);
+		}
+		
 	}
 	
 	/**
