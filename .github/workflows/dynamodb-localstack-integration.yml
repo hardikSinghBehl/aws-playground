@@ -11,6 +11,7 @@ on:
       - main
     paths: 
       - article-samples/dynamodb-localstack-integration/**
+  workflow_dispatch:
 
 jobs:
   build:
