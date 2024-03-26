@@ -1,4 +1,4 @@
-name: DynamoDB LocalStack Integration
+name: DynamoDB LocalStack integration build
 
 on:
   push:
