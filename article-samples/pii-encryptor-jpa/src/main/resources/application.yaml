@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      
+com:
+  behl:
+    encryptor:
+      aws:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+        region: ${AWS_REGION}
+        kms:
+          key-id: ${AWS_KMS_KEY_ID}
