@@ -1,0 +1,40 @@
+name: DynamoDB LocalStack integration build
+
+on:
+  push:
+    branches: 
+      - "*"
+    paths: 
+      - article-samples/dynamodb-localstack-integration/**
+  pull_request:
+    branches: 
+      - main
+    paths: 
+      - article-samples/dynamodb-localstack-integration/**
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./article-samples/dynamodb-localstack-integration
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: adopt
+          cache: maven
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compile project
+        run: mvn compile
+
+      - name: Run Integration Tests
+        run: mvn integration-test verify
