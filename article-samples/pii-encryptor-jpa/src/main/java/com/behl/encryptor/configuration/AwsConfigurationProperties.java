@@ -27,6 +27,7 @@ import lombok.Setter;
  *         access-key: "aws-access-key"
  *         secret-access-key: "aws-secret-access-key"
  *         region: "aws-region"
+ *         endpoint: "aws-endpoint-url"
  *         kms:
  *           key-id: "aws-kms-key-id"
  * </pre>
