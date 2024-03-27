@@ -41,13 +41,14 @@ public class FieldEncryptionManager {
 		var encryptor = envelopeEncryptionWrapper.getEncryptor();
 		var encryptableFields = getEncryptableFields(targetClass);
 		
-		for (var field : encryptableFields) {
-			var originalValue = String.valueOf(field.get(target));
-			var encryptedValue = encryptor.encrypt(originalValue);
-			field.set(target, encryptedValue);
+		if (Boolean.FALSE.equals(encryptableFields.isEmpty())) {
+			for (var field : encryptableFields) {
+				var originalValue = String.valueOf(field.get(target));
+				var encryptedValue = encryptor.encrypt(originalValue);
+				field.set(target, encryptedValue);
+			}
+			encryptedDataKeyField.set(target, encryptor.getEncryptedDataKey());
 		}
-		
-		encryptedDataKeyField.set(target, encryptor.getEncryptedDataKey());
 	}
 
 	/**
