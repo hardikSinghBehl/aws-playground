@@ -6,11 +6,13 @@ on:
       - "*"
     paths: 
       - article-samples/dynamodb-localstack-integration/**
+      - .github/workflows/dynamodb-localstack-integration.yml
   pull_request:
     branches: 
       - main
     paths: 
       - article-samples/dynamodb-localstack-integration/**
+      - .github/workflows/dynamodb-localstack-integration.yml
   workflow_dispatch:
 
 jobs:
@@ -29,9 +31,6 @@ jobs:
           java-version: 21
           distribution: adopt
           cache: maven
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
 
       - name: Compile project
         run: mvn compile
