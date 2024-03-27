@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Encryptor {
 	
-	private static final Encoder encoder = Base64.getEncoder();
+	private static final Encoder ENCODER = Base64.getEncoder();
 
 	private final byte[] dataEncryptionKey;
 	private final byte[] encryptedDataKey;
@@ -30,7 +30,7 @@ public class Encryptor {
 	 */
 	public String encrypt(@NonNull String data) {
 		final var encryptedData = AESUtils.performCipherOperation(Cipher.ENCRYPT_MODE, dataEncryptionKey, data.getBytes());
-		return encoder.encodeToString(encryptedData);
+		return ENCODER.encodeToString(encryptedData);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class Encryptor {
 	 * @return The Base64-encoded encrypted DEK.
 	 */
 	public String getEncryptedDataKey() {
-		return encoder.encodeToString(encryptedDataKey);
+		return ENCODER.encodeToString(encryptedDataKey);
 	}
 
 }
