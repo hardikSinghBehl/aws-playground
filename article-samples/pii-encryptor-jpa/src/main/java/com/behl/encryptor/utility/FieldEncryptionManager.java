@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.behl.encryptor.annotation.Encryptable;
 import com.behl.encryptor.annotation.EncryptedDataKey;
 
+import jakarta.persistence.Id;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -88,9 +89,12 @@ public class FieldEncryptionManager {
 	private List<Field> getEncryptableFields(@NonNull Class<?> targetClass) {
 		var encryptableFields = new ArrayList<Field>();
 		for (Field field : targetClass.getDeclaredFields()) {
-			if (field.isAnnotationPresent(Encryptable.class) && field.getType().isAssignableFrom(String.class)) {
+			if (field.isAnnotationPresent(Encryptable.class)) {
+				var isString = field.getType().isAssignableFrom(String.class);
 				var isEncryptedDataKey = field.isAnnotationPresent(EncryptedDataKey.class);
-				if (Boolean.FALSE.equals(isEncryptedDataKey)) {
+				var isPrimaryKey = field.isAnnotationPresent(Id.class);
+				if (Boolean.TRUE.equals(isString) && Boolean.FALSE.equals(isEncryptedDataKey)
+						&& Boolean.FALSE.equals(isPrimaryKey)) {
 					field.setAccessible(Boolean.TRUE);
 					encryptableFields.add(field);	
 				}
