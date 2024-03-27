@@ -6,11 +6,13 @@ on:
       - "*"
     paths: 
       - envelope-encryption/**
+      - .github/workflows/envelope-encryption.yml
   pull_request:
     branches: 
       - main
     paths: 
       - envelope-encryption/**
+      - .github/workflows/envelope-encryption.yml
 
 jobs:
   build:
@@ -20,20 +22,17 @@ jobs:
         working-directory: ./envelope-encryption
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: adopt
           cache: maven
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
       - name: Compile project
         run: mvn compile
 
       - name: Run Integration Tests
-        run: mvn integration-test
+        run: mvn integration-test verify
