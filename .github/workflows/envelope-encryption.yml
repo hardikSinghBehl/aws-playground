@@ -6,11 +6,13 @@ on:
       - "*"
     paths: 
       - envelope-encryption/**
+      - .github/workflows/envelope-encryption.yml
   pull_request:
     branches: 
       - main
     paths: 
       - envelope-encryption/**
+      - .github/workflows/envelope-encryption.yml
 
 jobs:
   build:
