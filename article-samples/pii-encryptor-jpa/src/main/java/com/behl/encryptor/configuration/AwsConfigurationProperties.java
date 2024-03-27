@@ -70,6 +70,20 @@ public class AwsConfigurationProperties {
 	 */
 	@NotBlank(message = "AWS region must be configured")
 	private String region;
+	
+	/**
+	 * <p>
+	 * Custom endpoint URL to be used when connecting with AWS KMS service. This
+	 * property corresponds to the key <code>com.behl.encryptor.aws.endpoint</code>
+	 * in the active .yaml configuration file.
+	 * </p>
+	 * 
+	 * <p>
+	 * This property is optional and is only used when running integration tests or
+	 * during local development when using LocalStack.
+	 * </p>
+	 */
+	private String endpoint;
 
 	@Valid
 	private KMS kms = new KMS();
