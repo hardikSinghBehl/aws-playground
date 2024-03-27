@@ -38,4 +38,4 @@ jobs:
         run: mvn compile
 
       - name: Run Integration Tests
-        run: mvn integration-test
+        run: mvn integration-test verify
