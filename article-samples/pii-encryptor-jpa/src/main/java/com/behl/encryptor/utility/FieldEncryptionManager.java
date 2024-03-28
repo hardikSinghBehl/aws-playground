@@ -121,6 +121,8 @@ public class FieldEncryptionManager {
 			throw new IllegalArgumentException("No field annotated with @EncryptedDataKey found in the target class.");
 		} else if (fields.size() > 1) {
 			throw new IllegalArgumentException("More than one field annotated with @EncryptedDataKey found in the target class.");
+		} else if (fields.get(0).getType().isAssignableFrom(String.class)) {
+			throw new IllegalArgumentException("Field annotated with @EncryptedDataKey must be of type String");
 		} else {
 			return fields.get(0);
 		}
