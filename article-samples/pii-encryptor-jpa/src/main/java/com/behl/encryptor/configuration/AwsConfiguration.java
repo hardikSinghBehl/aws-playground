@@ -1,5 +1,6 @@
 package com.behl.encryptor.configuration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +41,7 @@ public class AwsConfiguration {
 
 	@Bean
 	@Profile("!test & !local")
+	@ConditionalOnMissingBean
 	public AWSKMS awsKms() {
 		var credentials = constructCredentials();
 		var regionName = awsConfigurationProperties.getRegion();
@@ -51,6 +53,7 @@ public class AwsConfiguration {
 	
 	@Bean
 	@Profile("test | local")
+	@ConditionalOnMissingBean
 	public AWSKMS testAwsKms() {
 		final var credentials = constructCredentials();
 		final var regionName = awsConfigurationProperties.getRegion();
