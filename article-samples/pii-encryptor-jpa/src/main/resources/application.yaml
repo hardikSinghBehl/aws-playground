@@ -10,12 +10,6 @@ spring:
     hibernate:
       ddl-auto: update
       
-com:
-  behl:
-    encryptor:
-      aws:
-        access-key: ${AWS_ACCESS_KEY_ID}
-        secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-        region: ${AWS_REGION}
-        kms:
-          key-id: ${AWS_KMS_KEY_ID}
+aws:
+  kms:
+    key-id: ${AWS_KMS_KEY_ID}
