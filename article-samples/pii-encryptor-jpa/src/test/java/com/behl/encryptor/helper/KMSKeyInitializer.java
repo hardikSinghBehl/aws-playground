@@ -2,15 +2,24 @@ package com.behl.encryptor.helper;
 
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.services.kms.AWSKMS;
+import com.amazonaws.services.kms.AWSKMSClientBuilder;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Configuration
 public class KMSKeyInitializer implements BeforeAllCallback {
 	
 	private static final DockerImageName LOCALSTACK_IMAGE = DockerImageName.parse("localstack/localstack:3.2");
@@ -29,13 +38,24 @@ public class KMSKeyInitializer implements BeforeAllCallback {
 		
 		log.info("Successfully started localstack container : {}", LOCALSTACK_IMAGE);
 	}
+	
+	@Bean
+	public AWSKMS testAwsKms() {
+		var accessKey = localStackContainer.getAccessKey();
+		var secretAccessKey = localStackContainer.getSecretKey();
+		var regionName = localStackContainer.getRegion();
+		var endpointUri = localStackContainer.getEndpoint().toString();
+		
+		var credentials = new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretAccessKey));
+		var endpointConfiguration = new EndpointConfiguration(endpointUri, regionName);
+		return AWSKMSClientBuilder.standard()
+				.withEndpointConfiguration(endpointConfiguration)
+				.withCredentials(credentials)
+				.build();
+	}
 
 	private void addConfigurationProperties() {
-		System.setProperty("com.behl.encryptor.aws.access-key", localStackContainer.getAccessKey());
-		System.setProperty("com.behl.encryptor.aws.secret-access-key", localStackContainer.getSecretKey());
-		System.setProperty("com.behl.encryptor.aws.region", localStackContainer.getRegion());
-		System.setProperty("com.behl.encryptor.aws.endpoint", localStackContainer.getEndpoint().toString());
-		System.setProperty("com.behl.encryptor.aws.kms.key-id", "00000000-1111-2222-3333-000000000000");
+		System.setProperty("aws.kms.key-id", "00000000-1111-2222-3333-000000000000");
 	}
 
 }
