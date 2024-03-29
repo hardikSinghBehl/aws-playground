@@ -31,95 +31,95 @@ import net.bytebuddy.utility.RandomString;
 @SpringBootTest
 @InitializeKMSKey
 @ActiveProfiles("test")
-@InitializeMysqlContainer 
+@InitializeMysqlContainer
 class DataEncryptionIT {
-	
+
 	@Autowired
 	private EntityManager entityManager;
-	
+
 	@Autowired
 	private AppointmentRepository appointmentRepository;
-	
+
 	@Test
 	void shoudEncryptPhiFieldsInDatabase() {
 		var appointment = createAppointment();
 		appointmentRepository.save(appointment);
-		
+
 		var sqlQuery = "SELECT diagnosis, treatment_plan, data_key FROM appointments WHERE id = ?";
-	    var query = entityManager.createNativeQuery(sqlQuery);
-	    query.setParameter(1, appointment.getId());
-	    
-	    var result = (Object[]) query.getSingleResult();
-	    var fetchedDiagnosis = String.valueOf(result[0]);
-	    var fetchedTreatmentPlan = String.valueOf(result[1]);
-	    var fetchedDataKey = String.valueOf(result[2]);
-	    
-	    assertThat(fetchedDiagnosis).isNotBlank().isNotEqualTo(appointment.getDiagnosis());
-	    assertThat(fetchedTreatmentPlan).isNotBlank().isNotEqualTo(appointment.getTreatmentPlan());	
-	    assertThat(fetchedDataKey).isNotBlank();
+		var query = entityManager.createNativeQuery(sqlQuery);
+		query.setParameter(1, appointment.getId());
+
+		var result = (Object[]) query.getSingleResult();
+		var fetchedDiagnosis = String.valueOf(result[0]);
+		var fetchedTreatmentPlan = String.valueOf(result[1]);
+		var fetchedDataKey = String.valueOf(result[2]);
+
+		assertThat(fetchedDiagnosis).isNotBlank().isNotEqualTo(appointment.getDiagnosis());
+		assertThat(fetchedTreatmentPlan).isNotBlank().isNotEqualTo(appointment.getTreatmentPlan());
+		assertThat(fetchedDataKey).isNotBlank();
 	}
-	
+
 	@Test
 	void shouldPopulateEncryptedDataKey() {
 		var appointment = createAppointment();
-		
+
 		assertThat(appointment.getDataKey()).isNull();
-		
+
 		var savedAppointment = appointmentRepository.save(appointment);
-		
+
 		assertThat(savedAppointment.getDataKey()).isNotBlank();
 	}
-	
+
 	@Test
 	void entityListenerShouldEncryptEncryptableFields() {
 		var appointment = createAppointment();
 		var savedAppointment = appointmentRepository.save(appointment);
-	    
-	    assertThat(savedAppointment.getDiagnosis()).isNotBlank().isNotEqualTo(appointment.getDiagnosis());
-	    assertThat(savedAppointment.getTreatmentPlan()).isNotBlank().isNotEqualTo(appointment.getTreatmentPlan());	
-	    assertThat(savedAppointment.getDataKey()).isNotBlank();
+
+		assertThat(savedAppointment.getDiagnosis()).isNotBlank().isNotEqualTo(appointment.getDiagnosis());
+		assertThat(savedAppointment.getTreatmentPlan()).isNotBlank().isNotEqualTo(appointment.getTreatmentPlan());
+		assertThat(savedAppointment.getDataKey()).isNotBlank();
 	}
-	
+
 	@Test
 	void shouldDecryptEncryptableFieldsJpaById() {
 		var appointment = createAppointment();
 		appointmentRepository.save(appointment);
-		
+
 		var retrievedAppointment = appointmentRepository.findById(appointment.getId()).orElseThrow(AssertionFailedError::new);
-	    
-	    assertThat(retrievedAppointment.getDiagnosis()).isNotBlank().isEqualTo(appointment.getDiagnosis());
-	    assertThat(retrievedAppointment.getTreatmentPlan()).isNotBlank().isEqualTo(appointment.getTreatmentPlan());	
-	    assertThat(retrievedAppointment.getDataKey()).isNotBlank();
+
+		assertThat(retrievedAppointment.getDiagnosis()).isNotBlank().isEqualTo(appointment.getDiagnosis());
+		assertThat(retrievedAppointment.getTreatmentPlan()).isNotBlank().isEqualTo(appointment.getTreatmentPlan());
+		assertThat(retrievedAppointment.getDataKey()).isNotBlank();
 	}
-	
+
 	@Test
 	void shouldDecryptEncryptableFieldsEntityManagerFind() {
 		var appointment = createAppointment();
 		appointmentRepository.save(appointment);
-		
+
 		var retrievedAppointment = entityManager.find(Appointment.class, appointment.getId());
-	    
-	    assertThat(retrievedAppointment.getDiagnosis()).isNotBlank().isEqualTo(appointment.getDiagnosis());
-	    assertThat(retrievedAppointment.getTreatmentPlan()).isNotBlank().isEqualTo(appointment.getTreatmentPlan());	
-	    assertThat(retrievedAppointment.getDataKey()).isNotBlank();
+
+		assertThat(retrievedAppointment.getDiagnosis()).isNotBlank().isEqualTo(appointment.getDiagnosis());
+		assertThat(retrievedAppointment.getTreatmentPlan()).isNotBlank().isEqualTo(appointment.getTreatmentPlan());
+		assertThat(retrievedAppointment.getDataKey()).isNotBlank();
 	}
-	
+
 	@Test
 	void shouldDecryptEncryptableFieldsEntityManagerNativeQuery() {
 		var appointment = createAppointment();
 		appointmentRepository.save(appointment);
-		
+
 		var sqlQuery = "SELECT * FROM appointments WHERE id = ?";
 		var query = entityManager.createNativeQuery(sqlQuery, Appointment.class);
 		query.setParameter(1, appointment.getId());
 		var retrievedAppointment = (Appointment) query.getSingleResult();
-	    
-	    assertThat(retrievedAppointment.getDiagnosis()).isNotBlank().isEqualTo(appointment.getDiagnosis());
-	    assertThat(retrievedAppointment.getTreatmentPlan()).isNotBlank().isEqualTo(appointment.getTreatmentPlan());	
-	    assertThat(retrievedAppointment.getDataKey()).isNotBlank();
+
+		assertThat(retrievedAppointment.getDiagnosis()).isNotBlank().isEqualTo(appointment.getDiagnosis());
+		assertThat(retrievedAppointment.getTreatmentPlan()).isNotBlank().isEqualTo(appointment.getTreatmentPlan());
+		assertThat(retrievedAppointment.getDataKey()).isNotBlank();
 	}
-	
-	private Appointment createAppointment() {		
+
+	private Appointment createAppointment() {
 		var appointment = new Appointment();
 		appointment.setId(UUID.randomUUID());
 		appointment.setDiagnosis(RandomString.make());
@@ -135,7 +135,7 @@ class DataEncryptionIT {
 @Table(name = "appointments")
 @EntityListeners(FieldEncryptionListener.class)
 class Appointment {
-	
+
 	@Id
 	private UUID id;
 
@@ -144,14 +144,14 @@ class Appointment {
 
 	@Encryptable
 	private String treatmentPlan;
-	
+
 	@EncryptedDataKey
 	@Setter(AccessLevel.NONE)
 	private String dataKey;
-	
+
 }
 
 @Repository
 interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
-	
+
 }
