@@ -1,6 +1,7 @@
 package com.behl.encryptor.utility;
 
 import java.util.Base64;
+import java.util.Base64.Decoder;
 
 import javax.crypto.Cipher;
 
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class Decryptor {
+	
+	private static final Decoder DECODER = Base64.getDecoder();
 	
 	private final byte[] dataEncryptionKey;
 	
@@ -29,7 +32,7 @@ public class Decryptor {
 	 * @throws IllegalArgumentException if the encryptedData is {@code null}.
 	 */
 	public String decrypt(@NonNull final String encryptedData) {
-		var decodedEncryptedData = Base64.getDecoder().decode(encryptedData);
+		var decodedEncryptedData = DECODER.decode(encryptedData);
 		var decryptedData = AESUtils.performCipherOperation(Cipher.DECRYPT_MODE, dataEncryptionKey, decodedEncryptedData);
 		return new String(decryptedData);
 	}

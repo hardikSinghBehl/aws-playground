@@ -10,7 +10,7 @@ import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.model.DataKeySpec;
 import com.amazonaws.services.kms.model.DecryptRequest;
 import com.amazonaws.services.kms.model.GenerateDataKeyRequest;
-import com.behl.encryptor.configuration.AwsConfigurationProperties;
+import com.behl.encryptor.configuration.KmsProperties;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +21,15 @@ import lombok.RequiredArgsConstructor;
  * encryption keys (DEKs) and provides instances for encryption and decryption
  * operations.
  * 
- * @see com.behl.encryptor.configuration.AwsConfiguration
- * @see com.behl.encryptor.configuration.AwsConfigurationProperties
+ * @see com.behl.encryptor.configuration.KmsProperties
  */
 @Service
 @RequiredArgsConstructor
-@EnableConfigurationProperties(value = AwsConfigurationProperties.class)
+@EnableConfigurationProperties(value = KmsProperties.class)
 public class EnvelopeEncryptionWrapper {
 
 	private final AWSKMS awsKms;
-	private final AwsConfigurationProperties awsConfigurationProperties;
+	private final KmsProperties kmsProperties;
 	
 	/**
 	 * Creates and returns an Encryptor instance for performing encryption
@@ -46,7 +45,7 @@ public class EnvelopeEncryptionWrapper {
 	 * @return Encryptor An instance of the {@link Encryptor} class.
 	 */
 	public Encryptor getEncryptor() {
-		var keyId = awsConfigurationProperties.getKms().getKeyId();
+		var keyId = kmsProperties.getKeyId();
 		var generateDataKeyRequest = new GenerateDataKeyRequest().withKeyId(keyId).withKeySpec(DataKeySpec.AES_256);
 		var dataKeyResult = awsKms.generateDataKey(generateDataKeyRequest);
 		

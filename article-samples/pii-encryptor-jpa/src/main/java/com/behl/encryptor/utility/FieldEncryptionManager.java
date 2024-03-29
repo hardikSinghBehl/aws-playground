@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.behl.encryptor.annotation.Encryptable;
 import com.behl.encryptor.annotation.EncryptedDataKey;
 
+import jakarta.persistence.Id;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -41,13 +42,14 @@ public class FieldEncryptionManager {
 		var encryptor = envelopeEncryptionWrapper.getEncryptor();
 		var encryptableFields = getEncryptableFields(targetClass);
 		
-		for (var field : encryptableFields) {
-			var originalValue = String.valueOf(field.get(target));
-			var encryptedValue = encryptor.encrypt(originalValue);
-			field.set(target, encryptedValue);
+		if (Boolean.FALSE.equals(encryptableFields.isEmpty())) {
+			for (var field : encryptableFields) {
+				var originalValue = String.valueOf(field.get(target));
+				var encryptedValue = encryptor.encrypt(originalValue);
+				field.set(target, encryptedValue);
+			}
+			encryptedDataKeyField.set(target, encryptor.getEncryptedDataKey());
 		}
-		
-		encryptedDataKeyField.set(target, encryptor.getEncryptedDataKey());
 	}
 
 	/**
@@ -87,9 +89,12 @@ public class FieldEncryptionManager {
 	private List<Field> getEncryptableFields(@NonNull Class<?> targetClass) {
 		var encryptableFields = new ArrayList<Field>();
 		for (Field field : targetClass.getDeclaredFields()) {
-			if (field.isAnnotationPresent(Encryptable.class) && field.getType().isAssignableFrom(String.class)) {
+			if (field.isAnnotationPresent(Encryptable.class)) {
+				var isString = field.getType().isAssignableFrom(String.class);
 				var isEncryptedDataKey = field.isAnnotationPresent(EncryptedDataKey.class);
-				if (Boolean.FALSE.equals(isEncryptedDataKey)) {
+				var isPrimaryKey = field.isAnnotationPresent(Id.class);
+				if (Boolean.TRUE.equals(isString) && Boolean.FALSE.equals(isEncryptedDataKey)
+						&& Boolean.FALSE.equals(isPrimaryKey)) {
 					field.setAccessible(Boolean.TRUE);
 					encryptableFields.add(field);	
 				}
@@ -116,6 +121,8 @@ public class FieldEncryptionManager {
 			throw new IllegalArgumentException("No field annotated with @EncryptedDataKey found in the target class.");
 		} else if (fields.size() > 1) {
 			throw new IllegalArgumentException("More than one field annotated with @EncryptedDataKey found in the target class.");
+		} else if (Boolean.FALSE.equals(fields.get(0).getType().isAssignableFrom(String.class))) {
+			throw new IllegalArgumentException("Field annotated with @EncryptedDataKey must be of type String");
 		} else {
 			return fields.get(0);
 		}

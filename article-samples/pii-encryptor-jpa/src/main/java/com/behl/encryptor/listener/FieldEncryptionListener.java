@@ -1,4 +1,4 @@
-package com.behl.encryptor.entity.listener;
+package com.behl.encryptor.listener;
 
 import org.springframework.stereotype.Component;
 
