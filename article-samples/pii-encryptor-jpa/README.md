@@ -10,7 +10,7 @@ The proposed solution employs the following components to solve the problem stat
 
 * [JPA Entity Listeners](https://docs.jboss.org/hibernate/stable/entitymanager/reference/en/html/listeners.html) : Using `@EntityListeners`, we can tap into the entity lifecycle events and alter the object in context. Lifecycle events `@PrePersist` and `@PostLoad` can be used to perform encryption and decryption respectively.
 
-Sensetive fields within the entity classed can be declared using the `@Encryptable` annotation. And the entity class should be annotated with `@EntityListeners(FieldEncryptionListener.class)`
+Sensitive fields within the entity classed can be declared using the `@Encryptable` annotation. And the entity class should be annotated with `@EntityListeners(FieldEncryptionListener.class)`
 
 Since we're using envelope encryption, the encrypted data key is needed to be stored with the database record as well. The annotation `@EncryptedDataKey` must be applied to a field within the entity responsible for storing this value.
 
@@ -46,6 +46,6 @@ public class Appointment {
 ```
 
 ### Note
-* The decryption post loading the object from the database is only successful, if the full entity is loaded either through CrudRepositoy, JpaRepostory, EntityManager or Query operations. Decryption on partial loading would be possible with service layer intervention, but this case is not considered in the POC at this time.
+* The decryption post loading the object from the database is only successful, if the full entity is loaded either through CrudRepository, JpaRepository, EntityManager or Query operations. Decryption on partial loading would be possible with service layer intervention, but this case is not considered in the POC at this time.
 * PII fields such as email addresses should be hashed, not encrypted in scenarios where the value is required for processes such as login, password recovery, etc.
 * PII/PHI fields that need to be queried should also be hashed and not encrypted, preferably stored in separate columns.
