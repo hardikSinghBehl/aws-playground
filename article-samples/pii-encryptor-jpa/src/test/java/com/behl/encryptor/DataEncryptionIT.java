@@ -26,7 +26,6 @@ import junit.framework.AssertionFailedError;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import net.bytebuddy.utility.RandomString;
 
 @SpringBootTest
@@ -130,7 +129,6 @@ class DataEncryptionIT {
 
 }
 
-@ToString
 @Getter
 @Setter
 @Entity
