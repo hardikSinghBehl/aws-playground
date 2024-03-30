@@ -101,7 +101,7 @@ public class FieldEncryptionManager {
 			}
 		}
 		if (Boolean.TRUE.equals(encryptableFields.isEmpty())) {
-			throw new MissingEncryptableFieldsException("No valid field annotated with @Encryptable found in the target class.");
+			throw new MissingEncryptableFieldsException();
 		}
 		return encryptableFields;
 	}
@@ -121,11 +121,11 @@ public class FieldEncryptionManager {
 				.toList();
 		
 		if (fields.isEmpty()) {
-			throw new NoEncryptedDataKeyFoundException("No field annotated with @EncryptedDataKey found in the target class.");
+			throw new NoEncryptedDataKeyFoundException();
 		} else if (fields.size() > 1) {
-			throw new MultipleEncryptedDataKeysFoundException("More than one field annotated with @EncryptedDataKey found in the target class.");
+			throw new MultipleEncryptedDataKeysFoundException();
 		} else if (Boolean.FALSE.equals(fields.get(0).getType().isAssignableFrom(String.class))) {
-			throw new InvalidEncryptedDataKeyTypeException("Field annotated with @EncryptedDataKey must be of type String");
+			throw new InvalidEncryptedDataKeyTypeException();
 		} else {
 			return fields.get(0);
 		}
