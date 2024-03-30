@@ -6,6 +6,7 @@ import com.behl.encryptor.utility.FieldEncryptionManager;
 
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -19,8 +20,9 @@ public class FieldEncryptionListener {
 
 	private final FieldEncryptionManager fieldEncryptionManager;
 	
+	@PreUpdate
 	@PrePersist
-	private void beforeUpdation(Object object) {
+	private void beforeSave(Object object) {
 		fieldEncryptionManager.encryptFields(object);
 	}
 

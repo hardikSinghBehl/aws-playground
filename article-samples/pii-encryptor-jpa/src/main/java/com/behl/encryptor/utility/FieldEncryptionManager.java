@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 
 import com.behl.encryptor.annotation.Encryptable;
 import com.behl.encryptor.annotation.EncryptedDataKey;
+import com.behl.encryptor.exception.InvalidEncryptedDataKeyTypeException;
+import com.behl.encryptor.exception.MissingEncryptableFieldsException;
+import com.behl.encryptor.exception.MultipleEncryptedDataKeysFoundException;
+import com.behl.encryptor.exception.NoEncryptedDataKeyFoundException;
 
 import jakarta.persistence.Id;
 import lombok.NonNull;
@@ -37,19 +41,16 @@ public class FieldEncryptionManager {
 	@SneakyThrows
 	public void encryptFields(@NonNull Object target) {
 		var targetClass = target.getClass();
-		var encryptedDataKeyField = getEncryptedDataKeyField(targetClass);
+		var encryptableFields = getEncryptableFields(targetClass);
+		var encryptedDataKeyField = getEncryptedDataKeyField(targetClass);	
 		
 		var encryptor = envelopeEncryptionWrapper.getEncryptor();
-		var encryptableFields = getEncryptableFields(targetClass);
-		
-		if (Boolean.FALSE.equals(encryptableFields.isEmpty())) {
-			for (var field : encryptableFields) {
-				var originalValue = String.valueOf(field.get(target));
-				var encryptedValue = encryptor.encrypt(originalValue);
-				field.set(target, encryptedValue);
-			}
-			encryptedDataKeyField.set(target, encryptor.getEncryptedDataKey());
+		for (var field : encryptableFields) {
+			var originalValue = String.valueOf(field.get(target));
+			var encryptedValue = encryptor.encrypt(originalValue);
+			field.set(target, encryptedValue);
 		}
+		encryptedDataKeyField.set(target, encryptor.getEncryptedDataKey());
 	}
 
 	/**
@@ -64,12 +65,11 @@ public class FieldEncryptionManager {
 	@SneakyThrows
 	public void decryptFields(@NonNull Object target) {
 		var targetClass = target.getClass();
+		var encryptableFields = getEncryptableFields(targetClass);
 		var encryptedDataKeyField = getEncryptedDataKeyField(targetClass);
 		var encryptedDataKey = String.valueOf(encryptedDataKeyField.get(target));
 		
 		var decryptor = envelopeEncryptionWrapper.getDecryptor(encryptedDataKey);
-		var encryptableFields = getEncryptableFields(targetClass);
-		
 		for (var field : encryptableFields) {
 			var encryptedValue = String.valueOf(field.get(target));
 			var decryptedValue = decryptor.decrypt(encryptedValue);
@@ -100,6 +100,9 @@ public class FieldEncryptionManager {
 				}
 			}
 		}
+		if (Boolean.TRUE.equals(encryptableFields.isEmpty())) {
+			throw new MissingEncryptableFieldsException();
+		}
 		return encryptableFields;
 	}
 	
@@ -118,11 +121,11 @@ public class FieldEncryptionManager {
 				.toList();
 		
 		if (fields.isEmpty()) {
-			throw new IllegalArgumentException("No field annotated with @EncryptedDataKey found in the target class.");
+			throw new NoEncryptedDataKeyFoundException();
 		} else if (fields.size() > 1) {
-			throw new IllegalArgumentException("More than one field annotated with @EncryptedDataKey found in the target class.");
+			throw new MultipleEncryptedDataKeysFoundException();
 		} else if (Boolean.FALSE.equals(fields.get(0).getType().isAssignableFrom(String.class))) {
-			throw new IllegalArgumentException("Field annotated with @EncryptedDataKey must be of type String");
+			throw new InvalidEncryptedDataKeyTypeException();
 		} else {
 			return fields.get(0);
 		}
