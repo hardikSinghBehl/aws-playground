@@ -19,7 +19,7 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<aws.sdk.version>1.12.606</aws.sdk.version>
+		<aws.sdk.version>2.25.20</aws.sdk.version>
 	</properties>
 
 	<developers>
@@ -50,8 +50,8 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-kms</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>kms</artifactId>
 			<version>${aws.sdk.version}</version>
 		</dependency>
 		<dependency>
