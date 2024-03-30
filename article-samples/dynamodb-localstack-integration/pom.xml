@@ -19,7 +19,7 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<aws.sdk.version>1.12.686</aws.sdk.version>
+		<aws.sdk.version>2.25.20</aws.sdk.version>
 	</properties>
 
 	<developers>
@@ -50,8 +50,13 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-dynamodb</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb-enhanced</artifactId>
 			<version>${aws.sdk.version}</version>
 		</dependency>
 		<dependency>
