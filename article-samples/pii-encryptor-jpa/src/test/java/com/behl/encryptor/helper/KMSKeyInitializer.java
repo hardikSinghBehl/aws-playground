@@ -10,13 +10,11 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.AWSKMSClientBuilder;
-
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.kms.KmsClient;
 
 @Slf4j
 @Configuration
@@ -40,17 +38,18 @@ public class KMSKeyInitializer implements BeforeAllCallback {
 	}
 	
 	@Bean
-	public AWSKMS testAwsKms() {
+	public KmsClient testKmsClient() {
 		var accessKey = localStackContainer.getAccessKey();
 		var secretAccessKey = localStackContainer.getSecretKey();
 		var regionName = localStackContainer.getRegion();
-		var endpointUri = localStackContainer.getEndpoint().toString();
-		
-		var credentials = new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretAccessKey));
-		var endpointConfiguration = new EndpointConfiguration(endpointUri, regionName);
-		return AWSKMSClientBuilder.standard()
-				.withEndpointConfiguration(endpointConfiguration)
-				.withCredentials(credentials)
+		var endpointUri = localStackContainer.getEndpoint();
+
+		var credentials = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretAccessKey));
+
+		return KmsClient.builder()
+				.region(Region.of(regionName))
+				.endpointOverride(endpointUri)
+				.credentialsProvider(credentials)
 				.build();
 	}
 

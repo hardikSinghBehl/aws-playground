@@ -1,24 +1,23 @@
 package com.behl.configuration;
 
+import java.net.URI;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 /** 
  * <P>
- * Configuration class responsible for configuration of AWS DynamoDB client and 
- * DynamoDB mapper to facilitate interaction within the application.
+ * Configuration class responsible for configuration of AWS DynamoDB client
+ * to facilitate interaction within the application.
  * </p>
  * 
  * <p>
@@ -41,38 +40,38 @@ public class AwsConfiguration {
 
 	@Bean
 	@Profile("!test && !local")
-	public AmazonDynamoDB amazonDynamoDB() {
+	public DynamoDbClient dynamoDbClient() {
 		final var credentials = constructCredentials();
 		final var regionName = awsConfigurationProperties.getRegion();
-		return AmazonDynamoDBClientBuilder.standard()
-				.withRegion(Regions.fromName(regionName))
-				.withCredentials(credentials)
+		return DynamoDbClient.builder()
+				.region(Region.of(regionName))
+				.credentialsProvider(credentials)
 				.build();
 	}
 	
 	@Bean
 	@Profile("test | local")
-	public AmazonDynamoDB testAmazonDynamoDb() {
+	public DynamoDbClient testDynamoDbClient() {
 		final var credentials = constructCredentials();
 		final var regionName = awsConfigurationProperties.getRegion();
-		final var endpointUri = awsConfigurationProperties.getEndpoint();
-		final var endpointConfiguration = new EndpointConfiguration(endpointUri, regionName);
-		return AmazonDynamoDBClientBuilder.standard()
-				.withEndpointConfiguration(endpointConfiguration)
-				.withCredentials(credentials)
+		final var endpointUri = URI.create(awsConfigurationProperties.getEndpoint());
+		return DynamoDbClient.builder()
+				.region(Region.of(regionName))
+				.endpointOverride(endpointUri)
+				.credentialsProvider(credentials)
 				.build();
 	}
-
+	
 	@Bean
-	public DynamoDBMapper dynamoDBMapper(final AmazonDynamoDB amazonDynamoDB) {
-		return new DynamoDBMapper(amazonDynamoDB);
+	public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
+		return DynamoDbEnhancedClient.builder().dynamoDbClient(dynamoDbClient).build();
 	}
 
-	private AWSStaticCredentialsProvider constructCredentials() {
+	private StaticCredentialsProvider constructCredentials() {
 		final var accessKey = awsConfigurationProperties.getAccessKey();
 		final var secretAccessKey = awsConfigurationProperties.getSecretAccessKey();
-		final var basicAwsCredentials = new BasicAWSCredentials(accessKey, secretAccessKey);
-		return new AWSStaticCredentialsProvider(basicAwsCredentials);
+		final var awsCredentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
+		return StaticCredentialsProvider.create(awsCredentials);
 	}
 	
 }
