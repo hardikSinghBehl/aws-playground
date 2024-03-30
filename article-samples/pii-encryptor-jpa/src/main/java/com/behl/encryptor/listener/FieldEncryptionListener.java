@@ -20,8 +20,8 @@ public class FieldEncryptionListener {
 
 	private final FieldEncryptionManager fieldEncryptionManager;
 	
-	@PrePersist
 	@PreUpdate
+	@PrePersist
 	private void beforeSave(Object object) {
 		fieldEncryptionManager.encryptFields(object);
 	}
