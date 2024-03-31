@@ -10,16 +10,17 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.kms.AWSKMS;
-import com.amazonaws.services.kms.model.DataKeySpec;
-import com.amazonaws.services.kms.model.DecryptRequest;
-import com.amazonaws.services.kms.model.GenerateDataKeyRequest;
 import com.behl.cipherinator.configuration.AwsConfiguration;
 import com.behl.cipherinator.configuration.AwsConfigurationProperties;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.kms.KmsClient;
+import software.amazon.awssdk.services.kms.model.DataKeySpec;
+import software.amazon.awssdk.services.kms.model.DecryptRequest;
+import software.amazon.awssdk.services.kms.model.GenerateDataKeyRequest;
 
 /**
  * Service class for performing envelope encryption operations using AWS Key
@@ -35,7 +36,7 @@ import lombok.SneakyThrows;
 @EnableConfigurationProperties(value = AwsConfigurationProperties.class)
 public class EnvelopeEncryptionService {
 
-	private final AWSKMS awsKms;
+	private final KmsClient kmsClient;
 	private final AwsConfigurationProperties awsConfigurationProperties;
 	
 	/**
@@ -53,11 +54,11 @@ public class EnvelopeEncryptionService {
 	 */
 	public Encryptor getEncryptor() {
 		final var keyId = awsConfigurationProperties.getKms().getKeyId();
-		final var generateDataKeyRequest = new GenerateDataKeyRequest().withKeyId(keyId).withKeySpec(DataKeySpec.AES_256);
-		final var dataKeyResult = awsKms.generateDataKey(generateDataKeyRequest);
+		final var generateDataKeyRequest = GenerateDataKeyRequest.builder().keyId(keyId).keySpec(DataKeySpec.AES_256).build();
+		final var dataKeyResult = kmsClient.generateDataKey(generateDataKeyRequest);
 		
-		final var dataEncryptionKey = dataKeyResult.getPlaintext().array();
-		final var encryptedDataKey = dataKeyResult.getCiphertextBlob().array();
+		final var dataEncryptionKey = dataKeyResult.plaintext().asByteArray();
+		final var encryptedDataKey = dataKeyResult.ciphertextBlob().asByteArray();
 
 		return new Encryptor(dataEncryptionKey, encryptedDataKey);
 	}
@@ -111,10 +112,11 @@ public class EnvelopeEncryptionService {
 	public Decryptor getDecryptor(@NonNull final String encryptedDataKey) {
 		final var decoder = Base64.getDecoder();
 		final var decodedEncryptedDataKey = decoder.decode(encryptedDataKey);
+		final var cipherTextBlob = SdkBytes.fromByteBuffer(ByteBuffer.wrap(decodedEncryptedDataKey));
 		
-		final var decryptRequest = new DecryptRequest().withCiphertextBlob(ByteBuffer.wrap(decodedEncryptedDataKey));
-		final var decryptResult = awsKms.decrypt(decryptRequest);
-		final var dataEncryptionKey = decryptResult.getPlaintext().array();
+		final var decryptRequest = DecryptRequest.builder().ciphertextBlob(cipherTextBlob).build();
+		final var decryptResult = kmsClient.decrypt(decryptRequest);
+		final var dataEncryptionKey = decryptResult.plaintext().asByteArray();
 		
 		return new Decryptor(dataEncryptionKey);
 	}
