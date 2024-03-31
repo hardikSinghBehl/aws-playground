@@ -1,7 +1,5 @@
 package com.behl.cipherinator.service;
 
-import java.util.UUID;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +39,9 @@ public class MedicalRecordService {
 		final var medicalRecord = modelMapper.map(medicalRecordCreationRequest, MedicalRecord.class);
 		fieldEncryptionManager.encryptFields(medicalRecord, encryptor);
 		
-		medicalRecord.setId(UUID.randomUUID().toString());
 		medicalRecord.setEncryptedDataKey(encryptor.getEncryptedDataKey());
 
-		medicalRecordRepository.save(medicalRecord);
-		return medicalRecord.getId();
+		return medicalRecordRepository.save(medicalRecord);
 	}
 	
 	/**

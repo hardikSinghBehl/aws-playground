@@ -11,6 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 
 @Repository
 public class MedicalRecordRepository {
@@ -21,8 +22,10 @@ public class MedicalRecordRepository {
 		this.medicalRecordTable = dynamoDbClient.table(MedicalRecord.TABLE_NAME, TableSchema.fromBean(MedicalRecord.class));
 	}
 
-	public void save(@NonNull final MedicalRecord medicalRecord) {
-		medicalRecordTable.putItem(medicalRecord);
+	public String save(@NonNull final MedicalRecord medicalRecord) {
+		var request = UpdateItemEnhancedRequest.builder(MedicalRecord.class).item(medicalRecord).build();
+		var response = medicalRecordTable.updateItemWithResponse(request);
+		return response.attributes().getId();
 	}
 
 	public Optional<MedicalRecord> findById(@NonNull final String medicalRecordId) {
