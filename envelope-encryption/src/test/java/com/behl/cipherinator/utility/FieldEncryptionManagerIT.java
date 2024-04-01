@@ -14,6 +14,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
+import com.behl.cipherinator.annotation.Encryptable;
 import com.behl.cipherinator.service.EnvelopeEncryptionService;
 
 import lombok.AllArgsConstructor;

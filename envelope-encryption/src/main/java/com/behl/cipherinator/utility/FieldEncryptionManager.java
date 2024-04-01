@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 import org.springframework.stereotype.Component;
 
+import com.behl.cipherinator.annotation.Encryptable;
 import com.behl.cipherinator.service.EnvelopeEncryptionService.Decryptor;
 import com.behl.cipherinator.service.EnvelopeEncryptionService.Encryptor;
 
