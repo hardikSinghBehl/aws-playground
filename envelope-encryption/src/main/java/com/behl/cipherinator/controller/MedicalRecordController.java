@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,6 +14,7 @@ import com.behl.cipherinator.dto.ExceptionResponseDto;
 import com.behl.cipherinator.dto.MedicalRecordCreationDto;
 import com.behl.cipherinator.dto.MedicalRecordCreationSuccessDto;
 import com.behl.cipherinator.dto.MedicalRecordDto;
+import com.behl.cipherinator.dto.MedicalRecordUpdationDto;
 import com.behl.cipherinator.service.MedicalRecordService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +43,20 @@ public class MedicalRecordController {
 		final var medicalRecordId = medicalRecordService.create(medicalRecordCreationRequest);
 		final var response = MedicalRecordCreationSuccessDto.builder().id(medicalRecordId).build();
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+	
+	@PutMapping(value = "/api/v1/medical-record/{medicalRecordId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "Updates medical record", description = "Updates medical record in the system corresponding to provided information.")
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Medical record updated successfully"),
+			@ApiResponse(responseCode = "404", description = "No Medical record exists with given Id.",
+					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class))),
+			@ApiResponse(responseCode = "400", description = "Malformed request.",
+					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class))) })
+	public ResponseEntity<HttpStatus> update(@PathVariable final String medicalRecordId,
+			@Valid @RequestBody final MedicalRecordUpdationDto medicalRecordUpdationRequest) {
+		medicalRecordService.update(medicalRecordId, medicalRecordUpdationRequest);
+		return ResponseEntity.ok().build();
 	}
 	
 	@GetMapping(value = "/api/v1/medical-record/{medicalRecordId}", produces = MediaType.APPLICATION_JSON_VALUE)
