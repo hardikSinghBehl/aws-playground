@@ -1,6 +1,22 @@
-spring:  
+spring:
+  ai:
+    bedrock:
+      aws:
+        region: ${AWS_REGION}
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      anthropic:
+        chat:
+          enabled: true
+          model: anthropic.claude-3-sonnet-20240229-v1:0
   datasource:
     url: ${MYSQL_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    
+com:
+  behl:
+    prompt:
+      template: classpath:prompt.st
+      ddl-schema: classpath:db/migration/V01__creating_database_tables.sql

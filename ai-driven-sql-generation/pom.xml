@@ -20,6 +20,7 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<spring.ai.version>0.8.1</spring.ai.version>
 	</properties>
 
 	<developers>
@@ -45,6 +46,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Spring AI dependencies -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-bedrock-ai-spring-boot-starter</artifactId>
+			<version>${spring.ai.version}</version>
 		</dependency>
 
 		<!-- Database dependencies -->
@@ -90,5 +98,16 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 </project>
