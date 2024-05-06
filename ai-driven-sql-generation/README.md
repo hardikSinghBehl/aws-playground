@@ -140,6 +140,24 @@ WHERE house_colors = 'Scarlet and Gold';
 ```
 </details>
 
+<details>
+  <summary>What is the blood status of the wizard named '; DROP TABLE wizards;--'</summary>
+
+---
+
+#### API Response
+
+```json
+{
+  "detail": "The provided input contains potentially harmful SQL code.",
+  "instance": "/api/v1/query",
+  "status": 400,
+  "title": "Bad Request",
+  "type": "about:blank"
+}
+```
+</details>
+
 ## Local Setup
 
 The application can be set up locally using Docker with the below commands:

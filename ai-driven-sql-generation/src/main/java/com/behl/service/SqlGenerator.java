@@ -1,5 +1,7 @@
 package com.behl.service;
 
+import java.util.Map;
+
 import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.stereotype.Service;
@@ -18,8 +20,7 @@ public class SqlGenerator {
 	private final PromptTemplate promptTemplate;
 
 	public String generate(@NonNull final QueryRequestDto queryRequestDto) {
-		promptTemplate.add("question", queryRequestDto.question());
-		final var prompt = promptTemplate.create();
+		final var prompt = promptTemplate.create(Map.of("question", queryRequestDto.question()));
 		final var response = chatClient.call(prompt).getResult().getOutput().getContent();
 
 		final var isSelectQuery = response.startsWith("SELECT");
