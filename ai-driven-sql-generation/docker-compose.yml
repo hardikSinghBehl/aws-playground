@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  mysql-datasource:
+    image: mysql:8
+    container_name: mysql-datasource
+    environment:
+      MYSQL_ROOT_PASSWORD: Password@123
+      MYSQL_DATABASE: ai-sql-generator
+      MYSQL_USER: ai-sql-generator
+      MYSQL_PASSWORD: Password@123
+    networks:
+      - ai-sql-generator
+
+  backend-application:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: backend-application
+    ports:
+    - 8080:8080
+    depends_on:
+      - mysql-datasource
+    environment:
+      MYSQL_URL: jdbc:mysql://mysql-datasource:3306/ai-sql-generator
+      MYSQL_USERNAME: ai-sql-generator
+      MYSQL_PASSWORD: Password@123
+      AWS_REGION:
+      AWS_ACCESS_KEY:
+      AWS_SECRET_KEY:
+    restart: on-failure:5
+    networks:
+      - ai-sql-generator
+
+networks:
+  ai-sql-generator:
