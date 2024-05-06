@@ -20,3 +20,9 @@ com:
     prompt:
       template: classpath:prompt.st
       ddl-schema: classpath:db/migration/V01__creating_database_tables.sql
+      
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
