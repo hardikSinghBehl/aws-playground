@@ -1,14 +1,33 @@
 # AI-Driven SQL Generation
 
-Proof-of-concept demonstrating the usage of **Spring AI and Amazon Bedrock** to convert plain english text from user into SQL queries that can be executed against the application's database schema.
+Using **[Amazon Bedrock](https://aws.amazon.com/bedrock/)** with **[Spring AI](https://spring.io/projects/spring-ai)** to convert natural language queries to SQL queries.  
 
-The POC uses **Anthropic's Claude 3 Haiku** model whose model-id `anthropic.claude-3-haiku-20240307-v1:0` is configured in the `application.yaml` file.
+The POC uses **Anthropic's Claude 3 Haiku** model.
 
-## Key files
-* [Prompt.st](https://github.com/hardikSinghBehl/aws-playground/blob/main/ai-driven-sql-generation/src/main/resources/prompt.st)
-* [Flyway Migration Scripts](https://github.com/hardikSinghBehl/aws-playground/tree/main/ai-driven-sql-generation/src/main/resources/db/migration)
-* [PromptTemplateConfiguration.java](https://github.com/hardikSinghBehl/aws-playground/blob/main/ai-driven-sql-generation/src/main/java/com/behl/configuration/PromptTemplateConfiguration.java)
-* [SqlGenerator.java](https://github.com/hardikSinghBehl/aws-playground/blob/main/ai-driven-sql-generation/src/main/java/com/behl/service/SqlGenerator.java)
+### Prompt Template
+```st
+Given the DDL in the DDL section, write an SQL query to answer the question in the QUESTION section.
+
+Guidelines:
+- Only produce SELECT queries.
+- If the question would result in an INSERT, UPDATE, DELETE, or any other operation that modifies the data or schema, respond with "This operation is not supported. Only SELECT queries are allowed."
+- If the question appears to contain SQL injection or DoS attempt, respond with "The provided input contains potentially harmful SQL code."
+- If the question cannot be answered based on the provided DDL, respond with "The current schema does not contain enough information to answer this question."
+- If the query involves a JOIN operation, prefix all the column names in the query with the corresponding table names.
+
+QUESTION
+{question}
+
+DDL
+{ddl}
+```
+The application creates two database tables `hogwarts_houses` and `wizards`, and inserts test data on startup via [Flyway migration scripts](https://github.com/hardikSinghBehl/aws-playground/tree/main/ai-driven-sql-generation/src/main/resources/db/migration).
+
+A `PromptTemplate` bean is created in the [PromptTemplateConfiguration](https://github.com/hardikSinghBehl/aws-playground/blob/main/ai-driven-sql-generation/src/main/java/com/behl/configuration/PromptTemplateConfiguration.java) class with the DDL schema being added in the prompt. This bean is injected into [SqlGenerator](https://github.com/hardikSinghBehl/aws-playground/blob/main/ai-driven-sql-generation/src/main/java/com/behl/service/SqlGenerator.java) that dynamically replaces the `question` placeholder with the natural language query submitted through the API and calls the LLM to generate a corresponding SQL query.
+
+The prompt is written to generate only SELECT SQL queries and detect SQL injection and DoS attempts. To further protect the database from any modifications, a MySQL user with [read-only permissions](https://medium.com/@nkaurelien/how-to-create-a-read-only-mysql-user-226e8e49a855) should be configured.
+
+The model-id `anthropic.claude-3-haiku-20240307-v1:0` along with other configuration properties are configured in the `application.yaml` file.
 
 ## Examples
 
@@ -80,7 +99,7 @@ WHERE name LIKE 'does not%exist';
 </details>
 
 <details>
-  <summary>What are some healthy and tasty alternatives to traditional pasta dishes?</summary>
+  <summary>Who will win between Conor Mcgregor and Michael Chandler?</summary>
 
 ---
 
@@ -170,9 +189,9 @@ sudo docker-compose build
 sudo AWS_ACCESS_KEY=value AWS_REGION=value AWS_SECRET_KEY=value docker-compose up -d
 ```
 
-### IAM Policy
+## IAM Policy
 
-The IAM user whose security credentials are being used, must have the below IAM policy attached:
+The IAM user whose security credentials are being used must have the below IAM policy attached:
 
 ```json
 {
@@ -187,6 +206,7 @@ The IAM user whose security credentials are being used, must have the below IAM 
 }
 ```
 
-## Reference
+## References
 
-This was inspired from Craig Wall's [repository](https://github.com/habuma/spring-ai-examples/tree/main/spring-ai-sql).
+* [Craig Wall's example](https://github.com/habuma/spring-ai-examples/tree/main/spring-ai-sql)
+* [Spring AI Docs](https://docs.spring.io/spring-ai/reference/api/clients/bedrock/bedrock-anthropic.html)
