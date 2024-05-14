@@ -14,10 +14,11 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-import com.behl.cipherinator.service.EnvelopeEncryptionService;
+import com.behl.cipherinator.annotation.Encryptable;
+import com.behl.cipherinator.annotation.EncryptedDataKey;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 
 @SpringBootTest
@@ -26,9 +27,6 @@ class FieldEncryptionManagerIT {
 	
 	@Autowired
 	private FieldEncryptionManager fieldEncryptionManager;
-	
-	@Autowired
-	private EnvelopeEncryptionService envelopeEncryptionService;
 
 	private static LocalStackContainer localStackContainer;
 
@@ -59,16 +57,14 @@ class FieldEncryptionManagerIT {
 		final var person = new Person(plaintextFirstName, plaintextLastName);
 		
 		// encrypt the object by calling the method under test 
-		final var encryptor = envelopeEncryptionService.getEncryptor();
-		fieldEncryptionManager.encryptFields(person, encryptor);
+		fieldEncryptionManager.encryptFields(person);
 		
 		// assert the field values in the object are encrypted
 		assertThat(person.getFirstName()).isNotBlank().isNotEqualTo(plaintextFirstName).isBase64();
 		assertThat(person.getLastName()).isNotBlank().isNotEqualTo(plaintextLastName).isBase64();
 		
 		// decrypt the object by calling the method under test
-		final var decryptor = envelopeEncryptionService.getDecryptor(encryptor.getEncryptedDataKey());
-		fieldEncryptionManager.decryptFields(person, decryptor);
+		fieldEncryptionManager.decryptFields(person);
 		
 		// assert the field values in the object are decrypted back to their original value
 		assertThat(person.getFirstName()).isNotBlank().isEqualTo(plaintextFirstName);
@@ -76,14 +72,17 @@ class FieldEncryptionManagerIT {
 	}
 	
 	@Getter
-	@AllArgsConstructor
+	@RequiredArgsConstructor
 	class Person {
 		
 		@Encryptable
-		private String firstName;
+		private final String firstName;
 		
 		@Encryptable
-		private String lastName;
+		private final String lastName;
+		
+		@EncryptedDataKey
+		private String dataKey;
 				
 	}
 	

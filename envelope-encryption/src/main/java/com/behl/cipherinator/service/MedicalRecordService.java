@@ -1,12 +1,11 @@
 package com.behl.cipherinator.service;
 
-import java.util.UUID;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.behl.cipherinator.dto.MedicalRecordCreationDto;
 import com.behl.cipherinator.dto.MedicalRecordDto;
+import com.behl.cipherinator.dto.MedicalRecordUpdationDto;
 import com.behl.cipherinator.entity.MedicalRecord;
 import com.behl.cipherinator.exception.InvalidMedicalRecordIdException;
 import com.behl.cipherinator.repository.MedicalRecordRepository;
@@ -21,7 +20,6 @@ public class MedicalRecordService {
 
 	private final FieldEncryptionManager fieldEncryptionManager;
 	private final MedicalRecordRepository medicalRecordRepository;
-	private final EnvelopeEncryptionService envelopeEncryptionService;
 	
 	private final ModelMapper modelMapper = new ModelMapper();
 
@@ -35,17 +33,17 @@ public class MedicalRecordService {
 	 * @return The ID of the newly created medical record.
 	 * @throws IllegalArgumentException if provided argument is {@code null}
 	 */
-	public String create(@NonNull final MedicalRecordCreationDto medicalRecordCreationRequest) {
-		final var encryptor = envelopeEncryptionService.getEncryptor();
-		
+	public String create(@NonNull final MedicalRecordCreationDto medicalRecordCreationRequest) {		
 		final var medicalRecord = modelMapper.map(medicalRecordCreationRequest, MedicalRecord.class);
-		fieldEncryptionManager.encryptFields(medicalRecord, encryptor);
-		
-		medicalRecord.setId(UUID.randomUUID().toString());
-		medicalRecord.setEncryptedDataKey(encryptor.getEncryptedDataKey());
-
+		fieldEncryptionManager.encryptFields(medicalRecord);
+		return medicalRecordRepository.save(medicalRecord);
+	}
+	
+	public void update(@NonNull final String medicalRecordId, @NonNull final MedicalRecordUpdationDto medicalRecordUpdationRequest) {
+		final var medicalRecord = medicalRecordRepository.findById(medicalRecordId).orElseThrow(InvalidMedicalRecordIdException::new);
+		modelMapper.map(medicalRecordUpdationRequest, medicalRecord);
+		fieldEncryptionManager.encryptFields(medicalRecord);
 		medicalRecordRepository.save(medicalRecord);
-		return medicalRecord.getId();
 	}
 	
 	/**
@@ -59,10 +57,7 @@ public class MedicalRecordService {
 	 */
 	public MedicalRecordDto retrieve(@NonNull final String medicalRecordId) {
 		final var medicalRecord = medicalRecordRepository.findById(medicalRecordId).orElseThrow(InvalidMedicalRecordIdException::new);
-		final var decryptor = envelopeEncryptionService.getDecryptor(medicalRecord.getEncryptedDataKey());
-		
-		fieldEncryptionManager.decryptFields(medicalRecord, decryptor);
-		
+		fieldEncryptionManager.decryptFields(medicalRecord);
 		return modelMapper.map(medicalRecord, MedicalRecordDto.class);
 	}
 

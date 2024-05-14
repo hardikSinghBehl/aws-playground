@@ -60,18 +60,16 @@ class MedicalRecordRepositoryIT {
 	@Test
 	void shouldSaveMedicalRecordSuccessfully() {
 		// create medical record
-		final var medicalRecordId = RandomString.make();
 		final var patientName = RandomString.make();
 		final var medicalHistory = RandomString.make();
 		final var encryptedDataKey = RandomString.make();
 		final var medicalRecord = new MedicalRecord();
-		medicalRecord.setId(medicalRecordId);
 		medicalRecord.setPatientName(patientName);
 		medicalRecord.setMedicalHistory(medicalHistory);
 		medicalRecord.setEncryptedDataKey(encryptedDataKey);
 
 		// call method under test
-		medicalRecordRepository.save(medicalRecord);
+		var medicalRecordId = medicalRecordRepository.save(medicalRecord);
 
 		// assert record existence in datasource
 		final Optional<MedicalRecord> retrievedMedicalRecord = medicalRecordRepository.findById(medicalRecordId);

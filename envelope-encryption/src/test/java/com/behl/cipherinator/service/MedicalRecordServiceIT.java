@@ -25,7 +25,7 @@ import com.behl.cipherinator.dto.MedicalRecordCreationDto;
 import com.behl.cipherinator.entity.MedicalRecord;
 import com.behl.cipherinator.exception.InvalidMedicalRecordIdException;
 import com.behl.cipherinator.repository.MedicalRecordRepository;
-import com.behl.cipherinator.service.EnvelopeEncryptionService.Encryptor;
+import com.behl.cipherinator.utility.EnvelopeEncryptionManager;
 import com.behl.cipherinator.utility.FieldEncryptionManager;
 
 import net.bytebuddy.utility.RandomString;
@@ -44,7 +44,7 @@ class MedicalRecordServiceIT {
 	private MedicalRecordRepository medicalRecordRepository;
 	
 	@SpyBean
-	private EnvelopeEncryptionService envelopeEncryptionService;
+	private EnvelopeEncryptionManager envelopeEncryptionManager;
 	
 	private static LocalStackContainer localStackContainer;
 
@@ -82,8 +82,8 @@ class MedicalRecordServiceIT {
 		final var medicalId = medicalRecordService.create(medicalCreationRequest);
 		
 		// verify interactions with spy beans
-		verify(envelopeEncryptionService, times(1)).getEncryptor();
-		verify(fieldEncryptionManager, times(1)).encryptFields(any(MedicalRecord.class), any(Encryptor.class));
+		verify(envelopeEncryptionManager, times(1)).getEncryptor();
+		verify(fieldEncryptionManager, times(1)).encryptFields(any(MedicalRecord.class));
 		verify(medicalRecordRepository, times(1)).save(any(MedicalRecord.class));
 		
 		// assert record existence in datasource

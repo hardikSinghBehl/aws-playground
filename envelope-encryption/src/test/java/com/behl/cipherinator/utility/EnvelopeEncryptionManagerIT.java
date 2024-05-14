@@ -1,4 +1,4 @@
-package com.behl.cipherinator.service;
+package com.behl.cipherinator.utility;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,10 +18,10 @@ import net.bytebuddy.utility.RandomString;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class EnvelopeEncryptionServiceIT {
+class EnvelopeEncryptionManagerIT {
 	
 	@Autowired
-	private EnvelopeEncryptionService envelopeEncryptionService;
+	private EnvelopeEncryptionManager envelopeEncryptionManager;
 
 	private static LocalStackContainer localStackContainer;
 
@@ -50,7 +50,7 @@ class EnvelopeEncryptionServiceIT {
 		final var data = RandomString.make();
 		
 		// encrypt plain-text data
-		final var encryptor = envelopeEncryptionService.getEncryptor();
+		final var encryptor = envelopeEncryptionManager.getEncryptor();
 		final var encryptedData = encryptor.encrypt(data);
 		
 		// assert encrypted data and encrypted data key are Base64-encoded
@@ -59,7 +59,7 @@ class EnvelopeEncryptionServiceIT {
 		assertThat(encryptedDataKey).isNotBlank().isBase64();
 		
 		// decrypt encrypted data back to plain-text
-		final var decryptor = envelopeEncryptionService.getDecryptor(encryptedDataKey);
+		final var decryptor = envelopeEncryptionManager.getDecryptor(encryptedDataKey);
 		final var decryptedData = decryptor.decrypt(encryptedData);
 		
 		// assert decrypted data matches original generated plain-text data
