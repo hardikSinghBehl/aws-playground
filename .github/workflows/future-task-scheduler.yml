@@ -1,0 +1,35 @@
+name: Future task scheduler build
+
+on:
+  push:
+    branches: 
+      - "*"
+    paths: 
+      - future-task-scheduler/**
+      - .github/workflows/future-task-scheduler.yml
+  pull_request:
+    branches: 
+      - main
+    paths: 
+      - future-task-scheduler/**
+      - .github/workflows/future-task-scheduler.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./future-task-scheduler
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: adopt
+          cache: maven
+
+      - name: Compile project
+        run: mvn compile
