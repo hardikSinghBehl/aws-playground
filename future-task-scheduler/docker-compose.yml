@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:3.4
+    ports:
+      - 4566:4566
+    environment:
+      - SERVICES=scheduler,sqs
+    volumes:
+      - ./localstack/init-sqs-queue.sh:/etc/localstack/init/ready.d/init-sqs-queue.sh
+    networks:
+      - future-task-scheduler
+
+  user-deactivation-scheduler:
+    container_name: user-deactivation-scheduler
+    image: future-task-scheduler-user-deactivation-scheduler
+    ports:
+    - 8080:8080
+    depends_on:
+      - localstack
+    environment:
+      spring.profiles.active: local
+      com.behl.aws.eventbridge-scheduler.endpoint: 'http://localstack:4566'
+      AWS_ACCESS_KEY: test
+      AWS_SECRET_KEY: test
+      EVENTBRIDGE_SCHEDULER_REGION: us-east-1
+      EVENTBRIDGE_SCHEDULER_TARGET_ARN: 'arn:aws:sqs:us-east-1:000000000000:user-account-deactivate'
+      EVENTBRIDGE_SCHEDULER_ROLE_ARN: 'arn:aws:iam::000000000000:role/service-role/test'
+      USER_ACCOUNT_DEACTIVATION_DELAY: 30s
+    networks:
+      - future-task-scheduler
+
+  user-deactivation-processor:
+    container_name: user-deactivation-processor
+    image: future-task-scheduler-user-deactivation-processor
+    ports:
+    - 9090:8080
+    depends_on:
+      - localstack
+    environment:
+      spring.profiles.active: local
+      com.behl.aws.sqs.endpoint: 'http://localstack:4566'
+      AWS_ACCESS_KEY: test
+      AWS_SECRET_KEY: test
+      AWS_SQS_REGION: us-east-1
+      AWS_SQS_QUEUE_URL: 'http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/user-account-deactivate'
+    networks:
+      - future-task-scheduler
+
+networks:
+  future-task-scheduler:

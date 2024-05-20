@@ -20,6 +20,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring.cloud.version>3.1.1</spring.cloud.version>
+		<spring-boot.build-image.imageName>${project.parent.artifactId}-${project.artifactId}</spring-boot.build-image.imageName>
 	</properties>
 
 	<developers>
@@ -60,6 +61,11 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -92,6 +98,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<image>
+						<env>
+							<BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+						</env>
+					</image>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
